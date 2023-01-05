@@ -30,6 +30,20 @@ PyObjectIdType = strawberry.scalar(
     PyObjectId, serialize=str, parse_value=lambda v: PyObjectId(v)
 )
 
+# user profile type
+@strawberry.type
+class ProfileType:
+    firstName: str
+    lastName: str
+    email: str
+
+
+# user profile input type
+@strawberry.input
+class ProfileInput:
+    uid: str
+
+
 # sample object type from pydantic model with all fields exposed
 @strawberry.experimental.pydantic.type(model=Sample, all_fields=True)
 class SampleType:

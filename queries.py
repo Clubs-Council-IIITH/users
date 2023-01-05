@@ -1,35 +1,64 @@
+import ldap
 import strawberry
 
+from typing import Optional
 from fastapi.encoders import jsonable_encoder
 
 from db import db
 
 # import all models and types
-from models import Sample
-from otypes import Info, SampleQueryInput, SampleType
+from otypes import Info, ProfileInput, ProfileType
+
+# instantiate LDAP client
+LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 
 
-# sample query
+# get user profile from LDAP
+# if profileInput is passed, use the provided uid
+# else return the profile of currently logged in user
 @strawberry.field
-def sampleQuery(sampleInput: SampleQueryInput, info: Info) -> SampleType:
+def getProfile(profileInput: Optional[ProfileInput], info: Info) -> ProfileType:
     user = info.context.user
-    print("user:", user)
 
-    sample = jsonable_encoder(sampleInput.to_pydantic())
+    # if input uid is provided, use it
+    # else use current logged in user's uid (if logged in)
+    target = None
+    if profileInput:
+        target = profileInput.uid
+    if user and (target is None):
+        target = user.get("uid", None)
 
-    # query from database
-    found_sample = db.samples.find_one({"_id": sample["_id"]})
+    # error out if querying uid is null
+    if target is None:
+        raise Exception("Can not query a null uid! Log in or provide an uid as input.")
 
-    # handle missing sample
-    if found_sample:
-        found_sample = Sample.parse_obj(found_sample)
-        return SampleType.from_pydantic(found_sample)
+    # query LDAP for user profile
+    result = LDAP.search_s(
+        "ou=Users,dc=iiit,dc=ac,dc=in",
+        ldap.SCOPE_SUBTREE,
+        filterstr=f"(uid={target})",
+    )
 
-    else:
-        raise Exception("Sample not found!")
+    # error out if LDAP query fails
+    if not result:
+        raise Exception("Could not find user profile in LDAP!")
+
+    # extract profile attributes
+    result = result[0][1]
+    firstName = result["givenName"][0].decode()
+    lastName = result["sn"][0].decode()
+    email = result["mail"][0].decode()
+
+    profile = ProfileType(
+        firstName=firstName,
+        lastName=lastName,
+        email=email,
+    )
+
+    return profile
 
 
 # register all queries
 queries = [
-    sampleQuery,
+    getProfile,
 ]
