@@ -7,7 +7,8 @@ from fastapi.encoders import jsonable_encoder
 from db import db
 
 # import all models and types
-from otypes import Info, ProfileInput, ProfileType
+from models import User
+from otypes import Info, UserInput, ProfileType, UserMetaType
 
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
@@ -17,14 +18,14 @@ LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 # if profileInput is passed, use the provided uid
 # else return the profile of currently logged in user
 @strawberry.field
-def getProfile(profileInput: Optional[ProfileInput], info: Info) -> ProfileType:
+def getProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     user = info.context.user
 
     # if input uid is provided, use it
     # else use current logged in user's uid (if logged in)
     target = None
-    if profileInput:
-        target = profileInput.uid
+    if userInput:
+        target = userInput.uid
     if user and (target is None):
         target = user.get("uid", None)
 
@@ -58,7 +59,25 @@ def getProfile(profileInput: Optional[ProfileInput], info: Info) -> ProfileType:
     return profile
 
 
+@strawberry.field
+def getUserMeta(userInput: UserInput) -> UserMetaType:
+    user = jsonable_encoder(userInput)
+
+    # query database for user
+    found_user = db.users.find_one({"uid": user["uid"]})
+
+    # if user doesn't exist, add to database
+    if found_user:
+        found_user = User.parse_obj(found_user)
+    else:
+        found_user = User(uid=user["uid"])
+        db.users.insert_one(jsonable_encoder(found_user))
+
+    return UserMetaType.from_pydantic(found_user)
+
+
 # register all queries
 queries = [
     getProfile,
+    getUserMeta,
 ]

@@ -8,7 +8,7 @@ from strawberry.types.info import RootValueType
 from typing import Union, Dict
 from functools import cached_property
 
-from models import PyObjectId, Sample
+from models import PyObjectId, User, Sample
 
 
 # custom context class
@@ -38,9 +38,16 @@ class ProfileType:
     email: str
 
 
-# user profile input type
+# authenticated user details type
+@strawberry.experimental.pydantic.type(model=User)
+class UserMetaType:
+    uid: strawberry.auto
+    role: strawberry.auto
+
+
+# user input type
 @strawberry.input
-class ProfileInput:
+class UserInput:
     uid: str
 
 

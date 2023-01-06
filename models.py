@@ -1,5 +1,5 @@
 from bson import ObjectId
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from typing import Optional
 
@@ -30,3 +30,17 @@ class Sample(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+
+
+# user model
+class User(BaseModel):
+    uid: str
+    img: Optional[str] = None
+    role: Optional[str] = "public"
+
+    @validator("role")
+    def constrain_role(cls, v):
+        role = v.lower()
+        if role not in ["public", "club", "cc", "slc", "slo"]:
+            raise ValueError("Invalid role!")
+        return role
