@@ -43,6 +43,7 @@ class ProfileType:
 class UserMetaType:
     uid: strawberry.auto
     role: strawberry.auto
+    img: strawberry.auto
 
 
 # user input type

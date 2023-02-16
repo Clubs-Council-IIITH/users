@@ -18,7 +18,7 @@ LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 # if profileInput is passed, use the provided uid
 # else return the profile of currently logged in user
 @strawberry.field
-def getProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
+def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     user = info.context.user
 
     # if input uid is provided, use it
@@ -59,18 +59,31 @@ def getProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     return profile
 
 
+# get user metadata (uid, role, etc.) from local database
 @strawberry.field
-def getUserMeta(userInput: UserInput) -> UserMetaType:
-    user = jsonable_encoder(userInput)
+def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType:
+    user = info.context.user
+
+    # if input uid is provided, use it
+    # else use current logged in user's uid (if logged in)
+    target = None
+    if userInput:
+        target = userInput.uid
+    if user and (target is None):
+        target = user.get("uid", None)
+
+    # error out if querying uid is null
+    if target is None:
+        raise Exception("Can not query a null uid! Log in or provide an uid as input.")
 
     # query database for user
-    found_user = db.users.find_one({"uid": user["uid"]})
+    found_user = db.users.find_one({"uid": target})
 
     # if user doesn't exist, add to database
     if found_user:
         found_user = User.parse_obj(found_user)
     else:
-        found_user = User(uid=user["uid"])
+        found_user = User(uid=target)
         db.users.insert_one(jsonable_encoder(found_user))
 
     return UserMetaType.from_pydantic(found_user)
@@ -78,6 +91,6 @@ def getUserMeta(userInput: UserInput) -> UserMetaType:
 
 # register all queries
 queries = [
-    getProfile,
-    getUserMeta,
+    userProfile,
+    userMeta,
 ]
