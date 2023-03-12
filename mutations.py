@@ -6,6 +6,7 @@ from db import db
 
 # import all models and types
 from otypes import Info, RoleInput
+from models import User
 
 
 # update role of user with uid
@@ -25,7 +26,8 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
     # insert if not exists
     if not db_user:
-        db.users.insert_one({"uid": roleInput["uid"]})
+        new_user = User(uid=roleInput["uid"])
+        db.users.insert_one(jsonable_encoder(new_user))
     
     # update role in database
     db.users.update_one(
