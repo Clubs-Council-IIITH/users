@@ -17,18 +17,22 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
     roleInput = jsonable_encoder(roleInput)
 
-    print("user:", user)
-    print("role:", user.get("role", None))
-
     # check if user is admin
     if user.get("role", None) not in ["cc"]:
-        raise Exception("Only admins can assign roles!")
+        raise Exception("Authentication Error! Only admins can assign roles!")
 
+    db_user = db.users.find_one({"uid": roleInput["uid"]})
+
+    # insert if not exists
+    if not db_user:
+        db.users.insert_one({"uid": roleInput["uid"]})
+    
     # update role in database
     db.users.update_one(
         {"uid": roleInput["uid"]},
         {"$set": {"role": roleInput["role"]}},
     )
+        
 
     return True
 
