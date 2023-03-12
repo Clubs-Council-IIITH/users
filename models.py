@@ -21,17 +21,6 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 
 
-# sample pydantic model
-class Sample(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    attribute: Optional[str]
-
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-
-
 # user model
 class User(BaseModel):
     uid: str

@@ -8,7 +8,7 @@ from strawberry.types.info import RootValueType
 from typing import Union, Dict
 from functools import cached_property
 
-from models import PyObjectId, User, Sample
+from models import PyObjectId, User
 
 
 # custom context class
@@ -29,6 +29,7 @@ Info = _Info[Context, RootValueType]
 PyObjectIdType = strawberry.scalar(
     PyObjectId, serialize=str, parse_value=lambda v: PyObjectId(v)
 )
+
 
 # user profile type
 @strawberry.type
@@ -52,19 +53,15 @@ class UserInput:
     uid: str
 
 
-# sample object type from pydantic model with all fields exposed
-@strawberry.experimental.pydantic.type(model=Sample, all_fields=True)
-class SampleType:
-    pass
+# user role input type
+@strawberry.input
+class RoleInput:
+    uid: str
+    role: str
 
 
-# sample query's input type from pydantic model
-@strawberry.experimental.pydantic.input(model=Sample)
-class SampleQueryInput:
-    id: strawberry.auto
-
-
-# sample mutation's input type from pydantic model
-@strawberry.experimental.pydantic.input(model=Sample)
-class SampleMutationInput:
-    attribute: strawberry.auto
+# user img input type
+@strawberry.input
+class ImageInput:
+    uid: str
+    img: str

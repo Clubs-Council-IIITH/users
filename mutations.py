@@ -5,25 +5,35 @@ from fastapi.encoders import jsonable_encoder
 from db import db
 
 # import all models and types
-from models import Sample
-from otypes import SampleMutationInput, SampleType
+from otypes import Info, RoleInput
 
 
-# sample mutation
+# update role of user with uid
 @strawberry.mutation
-def sampleMutation(sampleInput: SampleMutationInput) -> SampleType:
-    sample = jsonable_encoder(sampleInput.to_pydantic())
+def updateRole(roleInput: RoleInput, info: Info) -> bool:
+    user = info.context.user
+    if not user:
+        raise Exception("Not logged in!")
 
-    # add to database
-    created_id = db.samples.insert_one(sample).inserted_id
+    roleInput = jsonable_encoder(roleInput)
 
-    # query from database
-    created_sample = Sample.parse_obj(db.samples.find_one({"_id": created_id}))
+    print("user:", user)
+    print("role:", user.get("role", None))
 
-    return SampleType.from_pydantic(created_sample)
+    # check if user is admin
+    if user.get("role", None) not in ["cc"]:
+        raise Exception("Only admins can assign roles!")
+
+    # update role in database
+    db.users.update_one(
+        {"uid": roleInput["uid"]},
+        {"$set": {"role": roleInput["role"]}},
+    )
+
+    return True
 
 
 # register all mutations
 mutations = [
-    sampleMutation,
+    updateRole,
 ]
