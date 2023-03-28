@@ -2,3 +2,4 @@
 .vscode/
 .in
 .out
+__pycache__/
