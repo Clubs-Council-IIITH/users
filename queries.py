@@ -1,6 +1,5 @@
 import ldap
 import strawberry
-from os import getenv
 
 from typing import Optional
 from fastapi.encoders import jsonable_encoder
@@ -9,23 +8,10 @@ from db import db
 
 # import all models and types
 from models import User
-from otypes import Info, UserInput, AuthInput, ProfileType, UserMetaType
+from otypes import Info, UserInput, ProfileType, UserMetaType
 
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
-
-def find_user(uid):
-    # query database for user
-    found_user = db.users.find_one({"uid": uid})
-
-    # if user doesn't exist, add to database
-    if found_user:
-        found_user = User.parse_obj(found_user)
-    else:
-        found_user = User(uid=uid)
-        db.users.insert_one(jsonable_encoder(found_user))
-    
-    return found_user
 
 
 # get user profile from LDAP
@@ -46,8 +32,6 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     # error out if querying uid is null
     if target is None:
         raise Exception("Can not query a null uid! Log in or provide an uid as input.")
-    
-    found_user = find_user(target)
 
     # query LDAP for user profile
     result = LDAP.search_s(
@@ -65,16 +49,11 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     firstName = result["givenName"][0].decode()
     lastName = result["sn"][0].decode()
     email = result["mail"][0].decode()
-    img = found_user.img
-
-    if img is None:
-        img = "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
 
     profile = ProfileType(
         firstName=firstName,
         lastName=lastName,
         email=email,
-        img = img
     )
 
     return profile
@@ -82,18 +61,14 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
 
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
-def userMeta(authInput: Optional[AuthInput], info: Info) -> UserMetaType:
-    secret = authInput.secret
-    if secret != getenv("AUTH_SECRET", default="default"):
-        raise Exception("You cannot access this Query!!")
-
+def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType:
     user = info.context.user
 
     # if input uid is provided, use it
     # else use current logged in user's uid (if logged in)
     target = None
-    if authInput:
-        target = authInput.uid
+    if userInput:
+        target = userInput.uid
     if user and (target is None):
         target = user.get("uid", None)
 
@@ -101,7 +76,15 @@ def userMeta(authInput: Optional[AuthInput], info: Info) -> UserMetaType:
     if target is None:
         raise Exception("Can not query a null uid! Log in or provide an uid as input.")
 
-    found_user = find_user(target)
+    # query database for user
+    found_user = db.users.find_one({"uid": target})
+
+    # if user doesn't exist, add to database
+    if found_user:
+        found_user = User.parse_obj(found_user)
+    else:
+        found_user = User(uid=target)
+        db.users.insert_one(jsonable_encoder(found_user))
 
     return UserMetaType.from_pydantic(found_user)
 

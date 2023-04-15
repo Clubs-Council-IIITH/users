@@ -45,7 +45,6 @@ class ProfileType:
     firstName: str
     lastName: str
     email: str
-    img: str
 
 
 # authenticated user details type
@@ -53,6 +52,7 @@ class ProfileType:
 class UserMetaType:
     uid: strawberry.auto
     role: strawberry.auto
+    img: strawberry.auto
 
 
 # user input type
@@ -60,11 +60,6 @@ class UserMetaType:
 class UserInput:
     uid: str
 
-
-@strawberry.input
-class AuthInput:
-    uid: str
-    secret: str
 
 # user role input type
 @strawberry.input
