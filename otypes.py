@@ -45,6 +45,7 @@ class ProfileType:
     firstName: str
     lastName: str
     email: str
+    gender: str | None
 
 
 # authenticated user details type

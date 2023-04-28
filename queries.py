@@ -50,10 +50,16 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     lastName = result["sn"][0].decode()
     email = result["mail"][0].decode()
 
+    # extract optional attributes
+    gender = None
+    if "gender" in result:
+        gender = result["gender"][0].decode()
+
     profile = ProfileType(
         firstName=firstName,
         lastName=lastName,
         email=email,
+        gender=gender,
     )
 
     return profile
