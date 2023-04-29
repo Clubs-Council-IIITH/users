@@ -31,7 +31,8 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
 
     # error out if querying uid is null
     if target is None:
-        raise Exception("Can not query a null uid! Log in or provide an uid as input.")
+        raise Exception(
+            "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
     result = LDAP.search_s(
@@ -46,8 +47,13 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
 
     # extract profile attributes
     result = result[0][1]
-    firstName = result["givenName"][0].decode()
-    lastName = result["sn"][0].decode()
+    if "cn" in result.keys():
+        fullNameList = result["cn"][0].decode().split()
+        firstName = fullNameList[0]
+        lastName = " ".join(fullNameList[1:])
+    else:
+        firstName = result["givenName"][0].decode()
+        lastName = result["sn"][0].decode()
     email = result["mail"][0].decode()
 
     # extract optional attributes
@@ -80,7 +86,8 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType:
 
     # error out if querying uid is null
     if target is None:
-        raise Exception("Can not query a null uid! Log in or provide an uid as input.")
+        raise Exception(
+            "Can not query a null uid! Log in or provide an uid as input.")
 
     # query database for user
     found_user = db.users.find_one({"uid": target})
