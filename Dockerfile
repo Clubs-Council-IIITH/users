@@ -1,9 +1,18 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
-
-EXPOSE 80
-
+# cache dependencies
+FROM python:3.11 as python_cache
+ENV VIRTUAL_ENV=/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+WORKDIR /cache/
 COPY requirements.txt .
-RUN apt update && apt install libsasl2-dev python-dev libldap2-dev libssl-dev -y
+RUN python -m venv /venv
 RUN pip install -r requirements.txt
 
-COPY . /app
+# build and start
+FROM python:3.11-slim as build
+EXPOSE 80
+WORKDIR /app/
+ENV VIRTUAL_ENV=/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+COPY --from=python_cache /venv /venv
+COPY . .
+ENTRYPOINT ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
