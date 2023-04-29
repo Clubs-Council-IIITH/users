@@ -8,7 +8,7 @@ RUN python -m venv /venv
 RUN pip install -r requirements.txt
 
 # build and start
-FROM python:3.11 as build
+FROM python:3.11-slim as build
 EXPOSE 80
 WORKDIR /app/
 ENV VIRTUAL_ENV=/venv
