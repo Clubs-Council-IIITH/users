@@ -25,7 +25,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
     # else use current logged in user's uid (if logged in)
     target = None
     if userInput:
-        target = userInput.uid.lower()
+        target = userInput.uid
     if user and (target is None):
         target = user.get("uid", None)
 
