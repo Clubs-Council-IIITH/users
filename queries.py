@@ -18,7 +18,7 @@ LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 # if profileInput is passed, use the provided uid
 # else return the profile of currently logged in user
 @strawberry.field
-def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
+def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | None:
     user = info.context.user
 
     # if input uid is provided, use it
@@ -31,8 +31,9 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
 
     # error out if querying uid is null
     if target is None:
-        raise Exception(
-            "Can not query a null uid! Log in or provide an uid as input.")
+        return None
+        # raise Exception(
+        #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
     result = LDAP.search_s(
@@ -73,7 +74,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType:
 
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
-def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType:
+def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
     user = info.context.user
 
     # if input uid is provided, use it
@@ -86,8 +87,9 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType:
 
     # error out if querying uid is null
     if target is None:
-        raise Exception(
-            "Can not query a null uid! Log in or provide an uid as input.")
+        return None
+        # raise Exception(
+        #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query database for user
     found_user = db.users.find_one({"uid": target})
