@@ -1,3 +1,4 @@
+import re
 import ldap
 import strawberry
 
@@ -47,6 +48,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
         raise Exception("Could not find user profile in LDAP!")
 
     # extract profile attributes
+    dn = result[0][0]
     result = result[0][1]
     if "cn" in result.keys():
         fullNameList = result["cn"][0].decode().split()
@@ -62,11 +64,23 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
     if "gender" in result:
         gender = result["gender"][0].decode()
 
+    batch = None
+    ous = re.findall(r"ou=\w{5,}?,", dn)  # get list of OUs the current DN belongs to
+    if len(ous) > 1:
+        # get batch OUs by searching for the '2k' string
+        batches = list(filter(lambda ou: re.match(r".*2k.*", ou), ous))
+        if len(batches) > 0:
+            # clean up batch code
+            batch = batches[0].replace("ou=", "").replace(",", "")
+            # remove the 'dual' suffix if it exists
+            batch = re.sub(r"dual$", "", batch, flags=re.IGNORECASE)
+
     profile = ProfileType(
         firstName=firstName,
         lastName=lastName,
         email=email,
         gender=gender,
+        batch=batch,
     )
 
     return profile

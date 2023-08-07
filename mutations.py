@@ -46,7 +46,12 @@ def updateImage(imgInput: ImageInput, info: Info) -> bool:
 
     imgInput = jsonable_encoder(imgInput)
 
-    db_user = db.users.find_one({"uid": imgInput["uid"]})
+    # check if user has access
+    if (
+        user.get("role", None) not in ["cc"]
+        and user.get("uid", None) != imgInput["uid"]
+    ):
+        raise Exception("You are not allowed to perform this action!")
 
     db.users.update_one(
         {"uid": imgInput["uid"]},
