@@ -49,6 +49,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
 
     # extract profile attributes
     dn = result[0][0]
+    ous = re.findall(r"ou=\w.*?,", dn)  # get list of OUs the current DN belongs to
     result = result[0][1]
     if "cn" in result.keys():
         fullNameList = result["cn"][0].decode().split()
@@ -65,15 +66,16 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
         gender = result["gender"][0].decode()
 
     batch = None
-    ous = re.findall(r"ou=\w{5,}?,", dn)  # get list of OUs the current DN belongs to
     if len(ous) > 1:
-        # get batch OUs by searching for the '2k' string
-        batches = list(filter(lambda ou: re.match(r".*2k.*", ou), ous))
-        if len(batches) > 0:
-            # clean up batch code
-            batch = batches[0].replace("ou=", "").replace(",", "")
-            # remove the 'dual' suffix if it exists
-            batch = re.sub(r"dual$", "", batch, flags=re.IGNORECASE)
+        # extract batch code from OUs
+        batch = re.sub(r"ou=(.*)?,", r"\1", ous[1])
+        # remove the 'dual' suffix if it exists
+        batch = re.sub(r"dual$", "", batch, flags=re.IGNORECASE)
+
+    stream = None
+    if len(ous) > 0:
+        # extract stream code from OUs
+        stream = re.sub(r"ou=(.*)?,", r"\1", ous[0])
 
     profile = ProfileType(
         firstName=firstName,
@@ -81,6 +83,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
         email=email,
         gender=gender,
         batch=batch,
+        stream=stream,
     )
 
     return profile
