@@ -5,8 +5,8 @@ from strawberry.fastapi import BaseContext
 from strawberry.types import Info as _Info
 from strawberry.types.info import RootValueType
 
-from typing import Union, Dict
 from functools import cached_property
+from typing import Union, Dict, Optional
 
 from models import PyObjectId, User
 
@@ -56,6 +56,7 @@ class UserMetaType:
     uid: strawberry.auto
     role: strawberry.auto
     img: strawberry.auto
+    phone: strawberry.auto
 
 
 # user input type
@@ -71,8 +72,16 @@ class RoleInput:
     role: str
 
 
-# user img input type
+# user img input type # TODO: deprecate
 @strawberry.input
 class ImageInput:
     uid: str
     img: str
+
+
+# user data input type
+@strawberry.input
+class UserDataInput:
+    uid: str
+    img: Optional[str]
+    phone: Optional[str]

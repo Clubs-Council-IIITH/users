@@ -1,7 +1,12 @@
+import re
+
 from bson import ObjectId
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 
 from typing import Optional
+
+# for validating phone numbers
+PHONE_REGEX = r"(\+\d{1,3}\s?)?((\(\d{3}\)\s?)|(\d{3})(\s|-?))(\d{3}(\s|-?))(\d{4})(\s?(([E|e]xt[:|.|]?)|x|X)(\s?\d+))?"
 
 
 # for handling mongo ObjectIds
@@ -26,6 +31,11 @@ class User(BaseModel):
     uid: str
     img: Optional[str] = None
     role: Optional[str] = "public"
+    phone: Optional[str] = None
+
+    @validator("uid", pre=True)
+    def transform_uid(cls, v):
+        return v.lower()
 
     @validator("role")
     def constrain_role(cls, v):
@@ -33,3 +43,10 @@ class User(BaseModel):
         if role not in ["public", "club", "cc", "slc", "slo"]:
             raise ValueError("Invalid role!")
         return role
+
+    @validator("phone")
+    def constrain_phone(cls, v):
+        phone = v
+        if (phone is not None) and (not re.match(PHONE_REGEX, phone)):
+            raise ValueError("Invalid phone number!")
+        return phone
