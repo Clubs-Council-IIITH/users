@@ -2,14 +2,14 @@ import re
 import ldap
 import strawberry
 
-from typing import Optional
+from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 
 from db import db
 
 # import all models and types
 from models import User
-from otypes import Info, UserInput, ProfileType, UserMetaType
+from otypes import Info, RoleInput, UserInput, ProfileType, UserMetaType
 
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
@@ -121,8 +121,16 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
     return UserMetaType.from_pydantic(found_user)
 
 
+# get all users belonging to the input role
+@strawberry.field
+def usersByRole(role: str, info: Info) -> List[UserMetaType]:
+    users = db.users.find({"role": role})
+    return [UserMetaType.from_pydantic(User.parse_obj(user)) for user in users]
+
+
 # register all queries
 queries = [
     userProfile,
     userMeta,
+    usersByRole,
 ]
