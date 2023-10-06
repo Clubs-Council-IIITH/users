@@ -107,6 +107,8 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
         return None
         # raise Exception(
         #     "Can not query a null uid! Log in or provide an uid as input.")
+    
+    target = target.lower()
 
     # query database for user
     found_user = db.users.find_one({"uid": target})
@@ -117,6 +119,8 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
     else:
         found_user = User(uid=target)
         db.users.insert_one(jsonable_encoder(found_user))
+    
+    found_user.uid = target
 
     return UserMetaType.from_pydantic(found_user)
 
