@@ -48,9 +48,9 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
         raise Exception("Could not find user profile in LDAP!")
 
     # extract profile attributes
-    dn = result[0][0]
+    dn = result[-1][0]
     ous = re.findall(r"ou=\w.*?,", dn)  # get list of OUs the current DN belongs to
-    result = result[0][1]
+    result = result[-1][1]
     if "cn" in result.keys():
         fullNameList = result["cn"][0].decode().split()
         firstName = fullNameList[0]
