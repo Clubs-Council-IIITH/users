@@ -48,6 +48,7 @@ class ProfileType:
     gender: str | None
     batch: str | None
     stream: str | None
+    rollno: str | None
 
 
 # authenticated user details type

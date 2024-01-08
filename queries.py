@@ -65,6 +65,12 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
     if "gender" in result:
         gender = result["gender"][0].decode()
 
+    rollno = None
+    if "uidNumber" in result:
+        rollno = result["uidNumber"][0].decode()
+    elif "sambaSID" in result:
+        rollno = result["sambaSID"][0].decode()
+
     batch = None
     if len(ous) > 1:
         # extract batch code from OUs
@@ -84,6 +90,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
         gender=gender,
         batch=batch,
         stream=stream,
+        rollno=rollno,
     )
 
     return profile
