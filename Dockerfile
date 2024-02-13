@@ -1,8 +1,8 @@
 # cache dependencies
-FROM python:3.11 as python_cache
+FROM python:3.11 AS python_cache
 RUN apt-get update && apt-get install libsasl2-dev python3-dev libldap2-dev libssl-dev slapd -y
 
-FROM python_cache as dependencies
+FROM python_cache AS dependencies
 ENV VIRTUAL_ENV=/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 WORKDIR /cache/
@@ -11,7 +11,7 @@ RUN python -m venv /venv
 RUN pip install -r requirements.txt
 
 # build and start
-FROM python:3.11-slim as build
+FROM python:3.11-slim AS build
 EXPOSE 80
 RUN apt-get update && apt-get install libldap-2.5.0 -y
 WORKDIR /app
