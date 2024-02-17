@@ -37,6 +37,25 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
     return True
 
+@strawberry.mutation
+def updateUserPhone(userDataInput: UserDataInput, info: Info) -> bool:
+    user = info.context.user
+    if not user:
+        raise Exception("Not logged in!")
+
+    userData = jsonable_encoder(userDataInput)
+
+    # check if user has access
+    if (user.get("role", None) not in ["cc", "club"]):
+        raise Exception("You are not allowed to perform this action!")
+
+    db.users.update_one(
+        {"uid": userData["uid"]},
+        {"$set": {"phone": userData["phone"]}},
+    )
+
+    return True
+
 
 @strawberry.mutation
 def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
@@ -64,5 +83,6 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
 # register all mutations
 mutations = [
     updateRole,
+    updateUserPhone,
     updateUserData,
 ]

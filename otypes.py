@@ -84,5 +84,5 @@ class ImageInput:
 @strawberry.input
 class UserDataInput:
     uid: str
-    img: Optional[str]
+    img: Optional[str] = None
     phone: Optional[str]
