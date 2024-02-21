@@ -9,7 +9,7 @@ from db import db
 
 # import all models and types
 from models import User
-from otypes import Info, RoleInput, UserInput, ProfileType, UserMetaType
+from otypes import Info, UserInput, ProfileType, UserMetaType
 
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
@@ -114,7 +114,7 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
         return None
         # raise Exception(
         #     "Can not query a null uid! Log in or provide an uid as input.")
-    
+
     target = target.lower()
 
     # query database for user
@@ -126,7 +126,7 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
     else:
         found_user = User(uid=target)
         db.users.insert_one(jsonable_encoder(found_user))
-    
+
     found_user.uid = target
 
     return UserMetaType.from_pydantic(found_user)
