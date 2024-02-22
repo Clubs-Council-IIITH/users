@@ -45,6 +45,7 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
 
     # error out if LDAP query fails
     if not result:
+        print(f"Could not find user profile for {target} in LDAP!")
         raise Exception("Could not find user profile in LDAP!")
 
     # extract profile attributes
