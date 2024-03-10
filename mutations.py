@@ -85,7 +85,6 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
     except Exception as e:
         raise Exception(f"Invalid data: {e}")
 
-    
     db.users.update_one(
         {"uid": userData["uid"]},
         {"$set": {"img": userData["img"], "phone": userData["phone"]}},
