@@ -46,6 +46,12 @@ def updateUserPhone(userDataInput: UserDataInput, info: Info) -> bool:
 
     userData = jsonable_encoder(userDataInput)
 
+    # Validate the data by putting in the model
+    try:
+        User(**userData)
+    except Exception as e:
+        raise Exception(f"Invalid data: {e}")
+
     # check if user has access
     if user.get("role", None) not in ["cc", "club"]:
         raise Exception("You are not allowed to perform this action!")
@@ -73,6 +79,13 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
     ):
         raise Exception("You are not allowed to perform this action!")
 
+    # Validate the data by putting in the model
+    try:
+        User(**userData)
+    except Exception as e:
+        raise Exception(f"Invalid data: {e}")
+
+    
     db.users.update_one(
         {"uid": userData["uid"]},
         {"$set": {"img": userData["img"], "phone": userData["phone"]}},
