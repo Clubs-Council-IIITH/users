@@ -1,12 +1,8 @@
-import re
-
 from bson import ObjectId
 from pydantic import field_validator, BaseModel
 from pydantic_core import core_schema
 from typing import Any, Optional
-
-# for validating phone numbers
-PHONE_REGEX = r"(\+\d{1,3}\s?)?((\(\d{3}\)\s?)|(\d{3})(\s|-?))(\d{3}(\s|-?))(\d{4})(\s?(([E|e]xt[:|.|]?)|x|X)(\s?\d+))?"
+import phonenumbers
 
 
 # for handling mongo ObjectIds
@@ -56,7 +52,16 @@ class User(BaseModel):
     @field_validator("phone")
     @classmethod
     def constrain_phone(cls, v):
-        phone = v
-        if (phone is not None) and (not re.match(PHONE_REGEX, phone)):
+        if v is None or v == "":
+            return None
+        try:
+            phone = phonenumbers.parse(v, "IN")
+            if not phonenumbers.is_valid_number(phone):
+                raise ValueError("Invalid phone number!")
+            return phonenumbers.format_number(
+                phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL
+            )
+        except phonenumbers.phonenumberutil.NumberParseException:
             raise ValueError("Invalid phone number!")
-        return phone
+        except Exception as e:
+            raise ValueError(str(e))
