@@ -71,6 +71,7 @@ class UserInput:
 class RoleInput:
     uid: str
     role: str
+    inter_communication_secret: Optional[str] = None
 
 
 # user img input type # TODO: deprecate

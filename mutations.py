@@ -1,12 +1,14 @@
 import strawberry
-
 from fastapi.encoders import jsonable_encoder
+import os
 
 from db import db
 
 # import all models and types
 from otypes import Info, RoleInput, UserDataInput
 from models import User
+
+inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 
 
 # update role of user with uid
@@ -21,6 +23,10 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
     # check if user is admin
     if user.get("role", None) not in ["cc"]:
         raise Exception("Authentication Error! Only admins can assign roles!")
+    
+    # check if the secret is correct
+    if roleInputData.get("inter_communication_secret", None) != inter_communication_secret:
+        raise Exception("Authentication Error! Invalid secret!")
 
     db_user = db.users.find_one({"uid": roleInputData["uid"]})
 
