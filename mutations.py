@@ -53,7 +53,10 @@ def updateUserPhone(userDataInput: UserDataInput, info: Info) -> bool:
         raise Exception(f"Invalid data: {e}")
 
     # check if user has access
-    if not (user.get("role", None) in ["cc", "club"] or user.get("uid", None) == userData["uid"]):
+    if not (
+        user.get("role", None) in ["cc", "club"]
+        or user.get("uid", None) == userData["uid"]
+    ):
         raise Exception("You are not allowed to perform this action!")
 
     db.users.update_one(
