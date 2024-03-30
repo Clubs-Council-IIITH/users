@@ -130,7 +130,9 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
 
     found_user.uid = target
 
-    if not user or (user["role"] not in ["cc", "slo", "slc", "club"] and user["uid"] != target):
+    if not user or (
+        user["role"] not in ["cc", "slo", "slc", "club"] and user["uid"] != target
+    ):
         # if user is not authorized to see phone number, hide the phone number
         found_user.phone = None
 
