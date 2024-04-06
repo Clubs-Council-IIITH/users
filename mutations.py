@@ -23,9 +23,12 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
     # check if user is admin
     if user.get("role", None) not in ["cc"]:
         raise Exception("Authentication Error! Only admins can assign roles!")
-    
+
     # check if the secret is correct
-    if roleInputData.get("inter_communication_secret", None) != inter_communication_secret:
+    if (
+        roleInputData.get("inter_communication_secret", None)
+        != inter_communication_secret
+    ):
         raise Exception("Authentication Error! Invalid secret!")
 
     db_user = db.users.find_one({"uid": roleInputData["uid"]})
