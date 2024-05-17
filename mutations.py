@@ -58,8 +58,8 @@ def updateUserPhone(userDataInput: UserDataInput, info: Info) -> bool:
     # Validate the data by putting in the model
     try:
         User(**userData)
-    except Exception as e:
-        raise Exception(f"Invalid data: {e}")
+    except Exception:
+        raise Exception("Invalid phone number!")
 
     # check if user has access
     if not (
@@ -92,10 +92,7 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
         raise Exception("You are not allowed to perform this action!")
 
     # Validate the data by putting in the model
-    try:
-        User(**userData)
-    except Exception as e:
-        raise Exception(f"Invalid data: {e}")
+    User(**userData)
 
     db.users.update_one(
         {"uid": userData["uid"]},
