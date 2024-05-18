@@ -1,4 +1,5 @@
 import re
+import os
 import ldap
 import strawberry
 
@@ -10,6 +11,8 @@ from db import db
 # import all models and types
 from models import User
 from otypes import Info, UserInput, ProfileType, UserMetaType
+
+inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
@@ -141,7 +144,10 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
 
 # get all users belonging to the input role
 @strawberry.field
-def usersByRole(role: str, info: Info) -> List[UserMetaType]:
+def usersByRole(role: str, inter_communication_secret: str | None = None) -> List[UserMetaType]:
+    if inter_communication_secret != inter_communication_secret_global:
+        raise Exception("Authentication Error! Invalid secret!")
+    
     users = db.users.find({"role": role})
     return [UserMetaType.from_pydantic(User.parse_obj(user)) for user in users]
 
