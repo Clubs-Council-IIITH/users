@@ -144,10 +144,12 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
 
 # get all users belonging to the input role
 @strawberry.field
-def usersByRole(role: str, inter_communication_secret: str | None = None) -> List[UserMetaType]:
+def usersByRole(
+    role: str, inter_communication_secret: str | None = None
+) -> List[UserMetaType]:
     if inter_communication_secret != inter_communication_secret_global:
         raise Exception("Authentication Error! Invalid secret!")
-    
+
     users = db.users.find({"role": role})
     return [UserMetaType.from_pydantic(User.parse_obj(user)) for user in users]
 
