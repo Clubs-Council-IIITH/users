@@ -1,12 +1,13 @@
-import strawberry
-from fastapi.encoders import jsonable_encoder
 import os
 
+import strawberry
+from fastapi.encoders import jsonable_encoder
+
 from db import db
+from models import User
 
 # import all models and types
 from otypes import Info, RoleInput, UserDataInput
-from models import User
 
 inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 

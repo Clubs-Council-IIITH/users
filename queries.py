@@ -1,16 +1,16 @@
-import re
 import os
+import re
+from typing import List, Optional
+
 import ldap
 import strawberry
-
-from typing import List, Optional
 from fastapi.encoders import jsonable_encoder
 
 from db import db
 
 # import all models and types
 from models import User
-from otypes import Info, UserInput, ProfileType, UserMetaType
+from otypes import Info, ProfileType, UserInput, UserMetaType
 
 inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
@@ -22,7 +22,9 @@ LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 # if profileInput is passed, use the provided uid
 # else return the profile of currently logged in user
 @strawberry.field
-def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | None:
+def userProfile(
+    userInput: Optional[UserInput], info: Info
+) -> ProfileType | None:
     user = info.context.user
 
     # if input uid is provided, use it
@@ -53,7 +55,9 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
 
     # extract profile attributes
     dn = result[-1][0]
-    ous = re.findall(r"ou=\w.*?,", dn)  # get list of OUs the current DN belongs to
+    ous = re.findall(
+        r"ou=\w.*?,", dn
+    )  # get list of OUs the current DN belongs to
     result = result[-1][1]
     if "cn" in result.keys():
         fullNameList = result["cn"][0].decode().split()
@@ -102,7 +106,9 @@ def userProfile(userInput: Optional[UserInput], info: Info) -> ProfileType | Non
 
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
-def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
+def userMeta(
+    userInput: Optional[UserInput], info: Info
+) -> UserMetaType | None:
     user = info.context.user
 
     # if input uid is provided, use it
@@ -134,7 +140,8 @@ def userMeta(userInput: Optional[UserInput], info: Info) -> UserMetaType | None:
     found_user.uid = target
 
     if not user or (
-        user["role"] not in ["cc", "slo", "slc", "club"] and user["uid"] != target
+        user["role"] not in ["cc", "slo", "slc", "club"]
+        and user["uid"] != target
     ):
         # if user is not authorized to see phone number, hide the phone number
         found_user.phone = None
