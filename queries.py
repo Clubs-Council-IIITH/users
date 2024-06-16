@@ -157,7 +157,9 @@ def usersByRole(
     user = info.context.user
 
     if user:
-        if user["role"] in ["cc",]:
+        if user["role"] in [
+            "cc",
+        ]:
             inter_communication_secret = inter_communication_secret_global
 
     if inter_communication_secret != inter_communication_secret_global:
