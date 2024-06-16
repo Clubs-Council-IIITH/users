@@ -152,8 +152,14 @@ def userMeta(
 # get all users belonging to the input role
 @strawberry.field
 def usersByRole(
-    role: str, inter_communication_secret: str | None = None
+    info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
+    user = info.context.user
+
+    if user:
+        if user["role"] in ["cc",]:
+            inter_communication_secret = inter_communication_secret_global
+
     if inter_communication_secret != inter_communication_secret_global:
         raise Exception("Authentication Error! Invalid secret!")
 
