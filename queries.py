@@ -132,7 +132,7 @@ def userMeta(
 
     # if user doesn't exist, add to database
     if found_user:
-        found_user = User.parse_obj(found_user)
+        found_user = User.model_validate(found_user)
     else:
         found_user = User(uid=target)
         db.users.insert_one(jsonable_encoder(found_user))
@@ -166,7 +166,9 @@ def usersByRole(
         raise Exception("Authentication Error! Invalid secret!")
 
     users = db.users.find({"role": role})
-    return [UserMetaType.from_pydantic(User.parse_obj(user)) for user in users]
+    return [
+        UserMetaType.from_pydantic(User.model_validate(user)) for user in users
+    ]
 
 
 # register all queries
