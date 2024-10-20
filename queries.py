@@ -42,11 +42,21 @@ def userProfile(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
-    result = LDAP.search_s(
-        "ou=Users,dc=iiit,dc=ac,dc=in",
-        ldap.SCOPE_SUBTREE,
-        filterstr=f"(uid={target})",
-    )
+    global LDAP
+    try:
+        result = LDAP.search_s(
+            "ou=Users,dc=iiit,dc=ac,dc=in",
+            ldap.SCOPE_SUBTREE,
+            filterstr=f"(uid={target})",
+        )
+    except ldap.SERVER_DOWN:
+        # Reconnect to LDAP server and retry the search
+        LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
+        result = LDAP.search_s(
+            "ou=Users,dc=iiit,dc=ac,dc=in",
+            ldap.SCOPE_SUBTREE,
+            filterstr=f"(uid={target})",
+        )
 
     # error out if LDAP query fails
     if not result:
