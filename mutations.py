@@ -7,7 +7,7 @@ from db import db
 from models import User
 
 # import all models and types
-from otypes import Info, RoleInput, UserDataInput
+from otypes import Info, PhoneInput, RoleInput, UserDataInput
 
 inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 
@@ -49,7 +49,7 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
 
 @strawberry.mutation
-def updateUserPhone(userDataInput: UserDataInput, info: Info) -> bool:
+def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
     user = info.context.user
     if not user:
         raise Exception("Not logged in!")
