@@ -73,13 +73,6 @@ class RoleInput:
     inter_communication_secret: Optional[str] = None
 
 
-# user img input type # TODO: deprecate
-@strawberry.input
-class ImageInput:
-    uid: str
-    img: str
-
-
 # user data input type
 @strawberry.input
 class UserDataInput:
