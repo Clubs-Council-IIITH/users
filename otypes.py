@@ -72,11 +72,13 @@ class RoleInput:
     role: str
     inter_communication_secret: Optional[str] = None
 
+
 # user phone input type
 @strawberry.input
 class PhoneInput:
     uid: str
     phone: str
+
 
 # user data input type
 @strawberry.input
