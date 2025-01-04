@@ -1,3 +1,15 @@
+"""
+Query Resolvers
+
+This file contains the 3 different query resolvers.
+each resolves a different query, each providing a different set of information.
+
+Resolvers:
+    userProfile: Returns the profile of a user from LDAP.
+    userMeta: Returns the metadata of a user from database.
+    usersByRole: Returns the users of a specific role.
+"""
+
 import os
 import re
 from typing import List, Optional
@@ -18,13 +30,31 @@ inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 
 
-# get user profile from LDAP
-# if profileInput is passed, use the provided uid
-# else return the profile of currently logged in user
 @strawberry.field
 def userProfile(
     userInput: Optional[UserInput], info: Info
 ) -> ProfileType | None:
+    """
+    Get user profile from LDAP
+
+    This method is used to get the profile of a user from IIITH server directory using LDAP.
+    The profile of a user includes first name, last name, email, gender, batch, roll no and stream.
+    It is searched on the basis of uid if given as input or the currently logged in user's uid(from Info).
+
+    Inputs:
+        userInput (UserInput): Contains the uid of the user.(Optional)
+        info (Info): Contains the user details.
+
+    Returns:
+        ProfileType: Contains the profile of the user.
+
+    Accessibility:
+        Public
+
+    Raises Exception:
+        Could not find user profile : If the user is not found in the LDAP server.
+    """
+
     user = info.context.user
 
     # if input uid is provided, use it
@@ -119,6 +149,27 @@ def userProfile(
 def userMeta(
     userInput: Optional[UserInput], info: Info
 ) -> UserMetaType | None:
+    """
+    User information from database
+
+    This method is used to get the metadata of a user from database.
+    If uid is provided as input then it is used, else the currently logged in user's uid.
+    It is used to fetch the user's role, image and phone number.
+    It creates a new user in database if a user with the gien uid is not found.
+    It hides the phone number for users with partial access.
+
+    Inputs:
+        userInput (UserInput): Contains the uid of the user.(Optional)
+        info (Info): Contains the user details.
+
+    Accessibility:
+        Public has partial access
+        CC,SLO,SLC,the same club have full access
+
+    Returns:
+        UserMetaType: Contains the metadata of the user.
+    """
+
     user = info.context.user
 
     # if input uid is provided, use it
@@ -164,6 +215,19 @@ def userMeta(
 def usersByRole(
     info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
+    """
+    To search users by role
+
+    This method is used to get the metadata of all users belonging to the input role.
+    It is used to fetch the user's role, image and phone number.
+
+    Inputs:
+        role (str): The role of the user.
+        inter_communication_secret (str): The secret used to authenticate the request.
+
+    Returns:
+        List[UserMetaType]: Contains the metadata of the users.
+    """
     user = info.context.user
 
     if user:

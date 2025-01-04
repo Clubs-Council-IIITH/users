@@ -1,3 +1,24 @@
+"""
+Types and Inputs
+
+It contains both Inputs and Types for taking inputs and returning outputs.
+It also contains the Context class which is used to pass the user details to the resolvers.
+
+Types:
+    Info : used to pass the user details to the resolvers.
+    PyObjectId : used to return ObjectId of a document.
+    ProfileType : used to return first name, last name, email, gender, batch, roll no and stream of the user, this is used for LDAP authentication.
+    UserMetaType : used to return all the details of a user.
+
+
+Inputs:
+    UserInput : used to input only uid(User ID)
+    RoleInput : used to input uid and role of the user along with the intercommunication secret(Optional)
+    ImageInput : used to input uid and photo of the user
+    UserDataInput : used to input uid, image(Optional) and phone no(Optional) of the user
+    
+"""
+
 import json
 from functools import cached_property
 from typing import Dict, Optional, Union
@@ -12,8 +33,24 @@ from models import PyObjectId, User
 
 # custom context class
 class Context(BaseContext):
+    """
+    To pass user details
+
+    This class is used to pass the user details to the resolvers.
+    It will be used through the Info type.
+    """
+
     @cached_property
     def user(self) -> Union[Dict, None]:
+        """
+        Returns User Details
+        
+        It will be used in the resolvers to check the user details.
+
+        Returns:
+            user (Dict): Contains User Details.
+        """
+        
         if not self.request:
             return None
 
@@ -22,6 +59,15 @@ class Context(BaseContext):
 
     @cached_property
     def cookies(self) -> Union[Dict, None]:
+        """
+        Returns Cookies Details
+
+        It will be used in the resolvers to check the cookies details.
+
+        Returns:
+            cookies (Dict): Contains Cookies Details.
+        """
+
         if not self.request:
             return None
 
@@ -59,13 +105,13 @@ class UserMetaType:
     phone: strawberry.auto
 
 
-# user input type
+# user id input
 @strawberry.input
 class UserInput:
     uid: str
 
 
-# user role input type
+# user role input
 @strawberry.input
 class RoleInput:
     uid: str
@@ -73,14 +119,14 @@ class RoleInput:
     inter_communication_secret: Optional[str] = None
 
 
-# user img input type # TODO: deprecate
+# user img input # TODO: deprecate
 @strawberry.input
 class ImageInput:
     uid: str
     img: str
 
 
-# user data input type
+# user data input
 @strawberry.input
 class UserDataInput:
     uid: str
