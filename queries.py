@@ -22,14 +22,21 @@ def get_profile(ldap_result: [str, dict]):
     ous = re.findall(
         r"ou=\w.*?,", dn
     )  # get list of OUs the current DN belongs to
-    if "cn" in details.keys():
+    if "cn" in details:
         fullNameList = details["cn"][0].decode().split()
         firstName = fullNameList[0]
         lastName = " ".join(fullNameList[1:])
-    else:
+    elif "givenName" in details and "sn" in details:
         firstName = details["givenName"][0].decode()
         lastName = details["sn"][0].decode()
-    email = details["mail"][0].decode()
+    else:
+        small_fn, small_ln = details["uid"].split('.')
+        firstName = small_fn.capitalize()
+        lastName = small_ln.capitalize()
+
+    email = None
+    if "mail"  in details:
+        email = details["mail"][0].decode()
 
     # extract optional attributes
     gender = None
@@ -183,22 +190,21 @@ def usersByRole(
     ]
 
 @strawberry.field
-def usersByBatch(info: Info, batch_year: int, inter_communication_secret: str | None = None) -> List[UserMetaType]:
-    user = info.context.user
+def usersByBatch(batch_year: int) -> List[ProfileType]:
+    prefixes = ["ug2k", "ms2k", "mtech2k", "pgssp2k", "phd2k"]
 
-    if user:
-        if user["role"] in ["cc", "slo"]:
-            inter_communication_secret = inter_communication_secret_global
+    full_ous = [ prefix + str(batch_year) for prefix in prefixes ]
+    full_ous.append(f"le2k{batch_year+1}")
+    full_ous.append(f"ug2k{batch_year}dual")
 
-    if inter_communication_secret != inter_communication_secret_global:
-        raise Exception("Authentication Error! Invalid secret!")
+    filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
 
     global LDAP
     try:
         result = LDAP.search_s(
             "ou=Users,dc=iiit,dc=ac,dc=in",
             ldap.SCOPE_SUBTREE,
-            filterstr=f"(|(ou:dn:=ug2k{batch_year})(ou:dn:=ug2k{batch_year}dual)(ou:dn:=le2k{batch_year+1}))",
+            filterstr,
         )
     except ldap.SERVER_DOWN:
         # Reconnect to LDAP server and retry the search
@@ -206,7 +212,7 @@ def usersByBatch(info: Info, batch_year: int, inter_communication_secret: str | 
         result = LDAP.search_s(
             "ou=Users,dc=iiit,dc=ac,dc=in",
             ldap.SCOPE_SUBTREE,
-            filterstr=f"(|(ou:dn:=ug2k{batch_year})(ou:dn:=ug2k{batch_year}dual)(ou:dn:=le2k{batch_year + 1}))",
+            filterstr,
         )
 
     # error out if LDAP query fails
@@ -214,7 +220,9 @@ def usersByBatch(info: Info, batch_year: int, inter_communication_secret: str | 
         print(f"Could not find user profiles for batch 2k{batch_year} in LDAP!")
         raise Exception("Could not find user profile in LDAP!")
 
-    return [ get_profile(user_result) for user_result in result ] # single profile
+    # use filter() to get non None values
+    return [get_profile(user_result) for user_result in result] # single profile,
+
 
 # register all queries
 queries = [
