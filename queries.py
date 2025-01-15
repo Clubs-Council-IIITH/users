@@ -1,8 +1,6 @@
 import os
-import re
 from typing import List, Optional
 
-import ldap
 import strawberry
 from fastapi.encoders import jsonable_encoder
 
@@ -11,68 +9,9 @@ from db import db
 # import all models and types
 from models import User
 from otypes import Info, ProfileType, UserInput, UserMetaType
+from utils import get_profile, ldap_search
 
 inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
-
-# instantiate LDAP client
-LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
-
-def get_profile(ldap_result: [str, dict]):
-    dn, details = ldap_result
-    ous = re.findall(
-        r"ou=\w.*?,", dn
-    )  # get list of OUs the current DN belongs to
-    if "cn" in details:
-        fullNameList = details["cn"][0].decode().split()
-        firstName = fullNameList[0]
-        lastName = " ".join(fullNameList[1:])
-    elif "givenName" in details and "sn" in details:
-        firstName = details["givenName"][0].decode()
-        lastName = details["sn"][0].decode()
-    else:
-        small_fn, small_ln = details["uid"].split('.')
-        firstName = small_fn.capitalize()
-        lastName = small_ln.capitalize()
-
-    email = None
-    if "mail"  in details:
-        email = details["mail"][0].decode()
-
-    # extract optional attributes
-    gender = None
-    if "gender" in details:
-        gender = details["gender"][0].decode()
-
-    rollno = None
-    if "uidNumber" in details:
-        rollno = details["uidNumber"][0].decode()
-    elif "sambaSID" in details:
-        rollno = details["sambaSID"][0].decode()
-
-    batch = None
-    if len(ous) > 1:
-        # extract batch code from OUs
-        batch = re.sub(r"ou=(.*)?,", r"\1", ous[1])
-        # remove the 'dual' suffix if it exists
-        batch = re.sub(r"dual$", "", batch, flags=re.IGNORECASE)
-
-    stream = None
-    if len(ous) > 0:
-        # extract stream code from OUs
-        stream = re.sub(r"ou=(.*)?,", r"\1", ous[0])
-
-    profile = ProfileType(
-        firstName=firstName,
-        lastName=lastName,
-        email=email,
-        gender=gender,
-        batch=batch,
-        stream=stream,
-        rollno=rollno,
-    )
-
-    return profile
-
 
 
 # get user profile from LDAP
@@ -99,21 +38,7 @@ def userProfile(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
-    global LDAP
-    try:
-        result = LDAP.search_s(
-            "ou=Users,dc=iiit,dc=ac,dc=in",
-            ldap.SCOPE_SUBTREE,
-            filterstr=f"(uid={target})",
-        )
-    except ldap.SERVER_DOWN:
-        # Reconnect to LDAP server and retry the search
-        LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
-        result = LDAP.search_s(
-            "ou=Users,dc=iiit,dc=ac,dc=in",
-            ldap.SCOPE_SUBTREE,
-            filterstr=f"(uid={target})",
-        )
+    result = ldap_search(f"(uid={target})")
 
     # error out if LDAP query fails
     if not result:
@@ -189,39 +114,35 @@ def usersByRole(
         UserMetaType.from_pydantic(User.model_validate(user)) for user in users
     ]
 
+
 @strawberry.field
 def usersByBatch(batch_year: int) -> List[ProfileType]:
+    if batch_year < 18 or batch_year > 100:
+        return []
+
     prefixes = ["ug2k", "ms2k", "mtech2k", "pgssp2k", "phd2k"]
 
-    full_ous = [ prefix + str(batch_year) for prefix in prefixes ]
+    full_ous = [prefix + str(batch_year) for prefix in prefixes]
     full_ous.append(f"le2k{batch_year+1}")
     full_ous.append(f"ug2k{batch_year}dual")
 
     filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
 
-    global LDAP
-    try:
-        result = LDAP.search_s(
-            "ou=Users,dc=iiit,dc=ac,dc=in",
-            ldap.SCOPE_SUBTREE,
-            filterstr,
-        )
-    except ldap.SERVER_DOWN:
-        # Reconnect to LDAP server and retry the search
-        LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
-        result = LDAP.search_s(
-            "ou=Users,dc=iiit,dc=ac,dc=in",
-            ldap.SCOPE_SUBTREE,
-            filterstr,
-        )
+    result = ldap_search(filterstr)
 
     # error out if LDAP query fails
     if not result:
-        print(f"Could not find user profiles for batch 2k{batch_year} in LDAP!")
-        raise Exception("Could not find user profile in LDAP!")
+        print(
+            f"Could not find user profiles for batch 2k{batch_year} in LDAP!"
+        )
+        raise Exception(
+            f"Could not find user profiles for batch 2k{batch_year} in LDAP!"
+        )
 
     # use filter() to get non None values
-    return [get_profile(user_result) for user_result in result] # single profile,
+    return [
+        get_profile(user_result) for user_result in result
+    ]  # single profile
 
 
 # register all queries
