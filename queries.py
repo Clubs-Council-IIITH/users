@@ -170,7 +170,7 @@ def usersByBatch(batch_year: int) -> List[ProfileType]:
     prefixes = ["ug2k", "ms2k", "mtech2k", "pgssp2k", "phd2k"]
 
     full_ous = [prefix + str(batch_year) for prefix in prefixes]
-    full_ous.append(f"le2k{batch_year+1}")
+    full_ous.append(f"le2k{batch_year + 1}")
     full_ous.append(f"ug2k{batch_year}dual")
 
     filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
