@@ -29,7 +29,7 @@ def ldap_search(filterstr: str):
     return result
 
 
-def get_profile(ldap_result: [str, dict]):
+def get_profile(ldap_result: List):
     dn, details = ldap_result
     ous = re.findall(
         r"ou=\w.*?,", dn
