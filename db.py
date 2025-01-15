@@ -1,22 +1,23 @@
 """
-MongoDB Initialization Module
+MongoDB Initialization Module.
 
-This module sets up a connection to a MongoDB database.
-This module connects to the MongoDB database using environment variables for authentication.
+This module sets up the connection to the MongoDB database.
 
-Environment Variables:
-    `MONGO_USERNAME` (str): MongoDB username. Defaults to "username".
-    `MONGO_PASSWORD` (str): MongoDB password. Defaults to "password".
-    `MONGO_PORT` (str): MongoDB port. Defaults to "27017".
-    `MONGO_DATABASE` (str): MongoDB database name. Defaults to "default".
-
+Attributes:
+    MONGO_USERNAME (str): An environment variable having MongoDB username. Defaults to "username".
+    MONGO_PASSWORD (str): An environment variable having MongoDB password. Defaults to "password".
+    MONGO_PORT (str): MongoDB port. Defaults to "27017".
+    MONGO_URI (str): MongoDB URI.
+    MONGO_DATABASE (str): MongoDB database name.
+    client (MongoClient): MongoDB client.
+    db (Database): Entire MongoDB database.
 """
 
 from os import getenv
 
 from pymongo import MongoClient
 
-# get mongodb URI and database name from environment variale
+# get mongodb URI and database name from environment variable
 MONGO_URI = "mongodb://{}:{}@mongo:{}/".format(
     getenv("MONGO_USERNAME", default="username"),
     getenv("MONGO_PASSWORD", default="password"),

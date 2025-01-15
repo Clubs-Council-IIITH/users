@@ -1,24 +1,6 @@
 """
 Types and Inputs
-
-It contains both Inputs and Types for taking inputs and returning outputs.
-It also contains the Context class which is used to pass the user details to the resolvers.
-
-Types:
-    Info : used to pass the user details to the resolvers.
-    PyObjectId : used to return ObjectId of a document.
-    ProfileType : used to return first name, last name, email, gender, batch, roll no and stream of the user, this is used for LDAP authentication.
-    UserMetaType : used to return all the details of a user.
-
-
-Inputs:
-    UserInput : used to input only uid(User ID)
-    RoleInput : used to input uid and role of the user along with the intercommunication secret(Optional)
-    ImageInput : used to input uid and photo of the user
-    UserDataInput : used to input uid, image(Optional) and phone no(Optional) of the user
-    
 """
-
 import json
 from functools import cached_property
 from typing import Dict, Optional, Union
@@ -34,22 +16,10 @@ from models import PyObjectId, User
 # custom context class
 class Context(BaseContext):
     """
-    To pass user details
-
-    This class is used to pass the user details to the resolvers.
-    It will be used through the Info type.
+    Class provides user metadata and cookies from request headers, has methods for doing this.
     """
-
     @cached_property
     def user(self) -> Union[Dict, None]:
-        """
-        Returns User Details
-        
-        It will be used in the resolvers to check the user details.
-
-        Returns:
-            user (Dict): Contains User Details.
-        """
         
         if not self.request:
             return None
@@ -59,14 +29,6 @@ class Context(BaseContext):
 
     @cached_property
     def cookies(self) -> Union[Dict, None]:
-        """
-        Returns Cookies Details
-
-        It will be used in the resolvers to check the cookies details.
-
-        Returns:
-            cookies (Dict): Contains Cookies Details.
-        """
 
         if not self.request:
             return None
@@ -75,7 +37,7 @@ class Context(BaseContext):
         return cookies
 
 
-# custom info type
+"""A scalar Type for serializing PyObjectId, used for id field"""
 Info = _Info[Context, RootValueType]
 
 # serialize PyObjectId as a scalar type
@@ -87,6 +49,9 @@ PyObjectIdType = strawberry.scalar(
 # user profile type
 @strawberry.type
 class ProfileType:
+    """
+     Type used for returning user details stored in LDAP server.
+    """
     firstName: str
     lastName: str
     email: str
@@ -99,6 +64,9 @@ class ProfileType:
 # authenticated user details type
 @strawberry.experimental.pydantic.type(model=User)
 class UserMetaType:
+    """
+    Type used for returning user details stored in the database.
+    """
     uid: strawberry.auto
     role: strawberry.auto
     img: strawberry.auto
@@ -108,12 +76,18 @@ class UserMetaType:
 # user id input
 @strawberry.input
 class UserInput:
+    """
+     Input used to take user id as input.
+    """
     uid: str
 
 
 # user role input
 @strawberry.input
 class RoleInput:
+    """
+    Input used to take user id and role as input.
+    """
     uid: str
     role: str
     inter_communication_secret: Optional[str] = None
@@ -122,6 +96,9 @@ class RoleInput:
 # user img input # TODO: deprecate
 @strawberry.input
 class ImageInput:
+    """
+    Input used to take user id and image as input.
+    """
     uid: str
     img: str
 
@@ -129,6 +106,9 @@ class ImageInput:
 # user data input
 @strawberry.input
 class UserDataInput:
+    """
+    Input used to take user id, image and phone number as input.
+    """
     uid: str
     img: Optional[str] = None
     phone: Optional[str]

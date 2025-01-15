@@ -1,8 +1,5 @@
 """
-Data Models for Users Microservice
-
-This file decides what and how a User's information is stored in its MongoDB document.
-It defines User model for the same purpose.
+Data Models for the Users Microservice
 """
 
 from typing import Any, Optional
@@ -16,27 +13,11 @@ from pydantic_core import core_schema
 # for handling mongo ObjectIds
 class PyObjectId(ObjectId):
     """
-    MongoDB ObjectId handler
-
-    This class contains clasmethods to validate and serialize ObjectIds.
-    ObjectIds of documents under the Clubs collection are stored under the 'id' field.
+    Class for handling MongoDB document ObjectIds for 'id' fields in Models.
     """
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type: Any, handler):
-        """
-        Defines custom schema for Pydantic validation
-
-        This method is used to define the schema for the Pydantic model.
-
-        Args:
-            source_type (Any): The source type.
-            handler: The handler.
-
-        Returns:
-            dict: The schema for the Pydantic model.
-        """
-
         return core_schema.union_schema(
             [
                 # check if it's an instance first before doing any further work
@@ -48,34 +29,12 @@ class PyObjectId(ObjectId):
 
     @classmethod
     def validate(cls, v):
-        """
-        Validates the given ObjectId
-
-        Args:
-            v (Any): The value to validate.
-
-        Returns:
-            ObjectId: The validated ObjectId.
-
-        Raises:
-            ValueError: If the given value is not a valid ObjectId.
-        """
-        
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)
 
     @classmethod
     def __get_pydantic_json_schema__(cls, field_schema):
-        """
-        Generates JSON schema
-
-        This method is used to generate the JSON schema for the Pydantic model.
-
-        Args:
-            field_schema (dict): The field schema.
-        """
-
         field_schema.update(type="string")
 
 
@@ -87,7 +46,7 @@ class User(BaseModel):
     This model defines the structure of a user's information.
 
     Attributes:
-        uid (str): The user's unique identifier.
+        uid (str): The user's unique identifier. Also has a validator to make sure it is in lowercase.
         img (Optional[str]): The user's profile picture URL.
         role (Optional[str]): The user's role.
         phone (Optional[str]): The user's phone number.
@@ -109,12 +68,9 @@ class User(BaseModel):
     @classmethod
     def constrain_role(cls, v):
         """
-        Role constraint
+        Makes sure the user's Role is either "public", "club", "cc", "slc", or "slo".
 
-        This method checks if the given role is valid.
-        Role is valid if it is either "public", "club", "cc", "slc", or "slo".
-
-        Inputs:
+        Args:
             v (str): The role to validate.
 
         Returns:
@@ -133,12 +89,9 @@ class User(BaseModel):
     @classmethod
     def constrain_phone(cls, v):
         """
-        Phone number validator
-
-        This method validates the given phone number by the user.
-        It validates according to the Indian phone number format.
-
-        Inputs:
+        This method validates the given phone number according to the Indian phone number format.
+        
+        Args:
             v (str): The phone number to validate.
 
         Returns:
