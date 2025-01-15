@@ -4,6 +4,7 @@ import ldap
 
 # import all models and types
 from otypes import ProfileType
+from typing import List
 
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
