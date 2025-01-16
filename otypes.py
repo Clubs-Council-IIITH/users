@@ -93,14 +93,14 @@ class RoleInput:
     inter_communication_secret: Optional[str] = None
 
 
-# user img input # TODO: deprecate
+# user phone input type
 @strawberry.input
-class ImageInput:
+class PhoneInput:
     """
-    Input used to take user id and image as input.
+    Input used to take user id and phone number as input.
     """
     uid: str
-    img: str
+    phone: str
 
 
 # user data input

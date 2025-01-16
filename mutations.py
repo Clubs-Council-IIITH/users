@@ -11,7 +11,7 @@ from db import db
 from models import User
 
 # import all models and types
-from otypes import Info, RoleInput, UserDataInput
+from otypes import Info, PhoneInput, RoleInput, UserDataInput
 
 inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 
@@ -69,12 +69,12 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
 
 @strawberry.mutation
-def updateUserPhone(userDataInput: UserDataInput, info: Info) -> bool:
+def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
     """
     This method is used to update the phone number of a user by the cc and user.
 
     Args:
-        userDataInput (UserDataInput): Contains the uid and phone number of the user.
+        userDataInput (PhoneInput): Contains the uid and phone number of the user.
         info (Info): Contains the user details.
 
     Returns:
