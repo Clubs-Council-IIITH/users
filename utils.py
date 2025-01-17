@@ -74,7 +74,12 @@ def get_profile(ldap_result: List):
         # extract stream code from OUs
         stream = re.sub(r"ou=(.*)?,", r"\1", ous[0])
 
+    uid = None
+    if "uid" in details:
+        uid = details["uid"][0].decode()
+
     profile = ProfileType(
+        uid=uid,
         firstName=firstName,
         lastName=lastName,
         email=email,

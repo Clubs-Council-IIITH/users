@@ -41,6 +41,7 @@ PyObjectIdType = strawberry.scalar(
 # user profile type
 @strawberry.type
 class ProfileType:
+    uid: str | None
     firstName: str
     lastName: str
     email: str

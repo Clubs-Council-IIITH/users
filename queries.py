@@ -144,6 +144,30 @@ def usersByBatch(batch_year: int) -> List[ProfileType]:
         get_profile(user_result) for user_result in result
     ]  # single profile
 
+# get all users in the given list of uids
+@strawberry.field
+def usersByList(info: Info, userInputs: List[UserInput]) -> List[Optional[ProfileType]]:
+    
+    profiles = []
+
+    filterstr = f"(|{''.join(f'(uid={userInput.uid})' for userInput in userInputs)})"
+    results: List = ldap_search(filterstr)
+    
+    # Make a list of successful profiles
+    resultUids = [result[1]["uid"][0].decode() for result in results]
+    
+    for userInput in userInputs:
+        uid = userInput.uid
+        if uid in resultUids: # If we get a result for this uid
+            index = resultUids.index(uid)
+            profiles.append(get_profile(results[index]))
+            results.pop(index) # Remove uid to speed up search time
+            resultUids.pop(index) 
+        else:
+            profiles.append(None)
+
+    
+    return profiles
 
 # register all queries
 queries = [
@@ -151,4 +175,5 @@ queries = [
     userMeta,
     usersByRole,
     usersByBatch,
+    usersByList,
 ]
