@@ -20,7 +20,6 @@ class Context(BaseContext):
     """
     @cached_property
     def user(self) -> Union[Dict, None]:
-        
         if not self.request:
             return None
 
@@ -29,7 +28,6 @@ class Context(BaseContext):
 
     @cached_property
     def cookies(self) -> Union[Dict, None]:
-
         if not self.request:
             return None
 
@@ -96,10 +94,12 @@ class RoleInput:
 # user phone input type
 @strawberry.input
 class PhoneInput:
+    """
+    Input used to take user id and phone number as input.
+    """
     uid: str
     phone: str
 
-<<<<<<< HEAD
 # user phone input type
 @strawberry.input
 class PhoneInput:
@@ -108,7 +108,6 @@ class PhoneInput:
     """
     uid: str
     phone: str
-
 
 # user data input
 @strawberry.input
