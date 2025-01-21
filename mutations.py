@@ -21,11 +21,11 @@ inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 def updateRole(roleInput: RoleInput, info: Info) -> bool:
     """
     This method is used to update the role of a user by CC.
-    
+
     Args:
         roleInput (RoleInput): Contains the uid and role of the user.
         info (Info): Contains the user details.
-    
+
     Returns:
         bool: True if the role is updated successfully, False otherwise.
 

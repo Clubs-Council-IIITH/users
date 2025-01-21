@@ -1,6 +1,7 @@
 """
 Types and Inputs
 """
+
 import json
 from functools import cached_property
 from typing import Dict, Optional, Union
@@ -18,6 +19,7 @@ class Context(BaseContext):
     """
     Class provides user metadata and cookies from request headers, has methods for doing this.
     """
+
     @cached_property
     def user(self) -> Union[Dict, None]:
         if not self.request:
@@ -48,8 +50,9 @@ PyObjectIdType = strawberry.scalar(
 @strawberry.type
 class ProfileType:
     """
-     Type used for returning user details stored in LDAP server.
+    Type used for returning user details stored in LDAP server.
     """
+
     firstName: str
     lastName: str
     email: str
@@ -65,6 +68,7 @@ class UserMetaType:
     """
     Type used for returning user details stored in the database.
     """
+
     uid: strawberry.auto
     role: strawberry.auto
     img: strawberry.auto
@@ -75,8 +79,9 @@ class UserMetaType:
 @strawberry.input
 class UserInput:
     """
-     Input used to take user id as input.
+    Input used to take user id as input.
     """
+
     uid: str
 
 
@@ -86,6 +91,7 @@ class RoleInput:
     """
     Input used to take user id and role as input.
     """
+
     uid: str
     role: str
     inter_communication_secret: Optional[str] = None
@@ -97,8 +103,10 @@ class PhoneInput:
     """
     Input used to take user id and phone number as input.
     """
+
     uid: str
     phone: str
+
 
 # user phone input type
 @strawberry.input
@@ -106,8 +114,10 @@ class PhoneInput:
     """
     Input used to take user id and phone number as input.
     """
+
     uid: str
     phone: str
+
 
 # user data input
 @strawberry.input
@@ -115,6 +125,7 @@ class UserDataInput:
     """
     Input used to take user id, image and phone number as input.
     """
+
     uid: str
     img: Optional[str] = None
     phone: Optional[str]

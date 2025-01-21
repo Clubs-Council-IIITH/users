@@ -30,7 +30,7 @@ def userProfile(
     Accessible to all users.
 
     Args:
-        userInput (UserInput): Contains the uid of the user.(Optional)
+        userInput (UserInput): Contains the uid of the user. Optional as if not passed uses the current logged in user's info.
         info (Info): Contains the user details.
 
     Returns:
@@ -80,7 +80,7 @@ def userMeta(
     It hides the phone number only for public users.
 
     Args:
-        userInput (UserInput): Contains the uid of the user.(Optional)
+        userInput (UserInput): Contains the uid of the user. Optional as if not passed uses the current logged in user's info.
         info (Info): Contains the user details.
 
     Returns:
@@ -137,11 +137,11 @@ def usersByRole(
 
     Args:
         role (str): The role of the user.
-        inter_communication_secret (str): The secret used to authenticate the request.
+        inter_communication_secret (str): The secret used to authenticate the request. Defaults to None.
 
     Returns:
         List[UserMetaType]: Contains the metadata of the users.
-        
+
     Raises:
         Exception: Authentication Error! Invalid secret!
     """
