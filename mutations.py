@@ -80,7 +80,8 @@ def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
         info (Info): Contains the user details.
 
     Returns:
-        bool: True if the phone number is updated successfully, False otherwise.
+        bool: True if the phone number is updated successfully, 
+              False otherwise.
 
     Raises:
         Exception: Not logged in!
