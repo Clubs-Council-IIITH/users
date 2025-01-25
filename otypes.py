@@ -109,17 +109,6 @@ class PhoneInput:
     phone: str
 
 
-# user phone input type
-@strawberry.input
-class PhoneInput:
-    """
-    Input used to take user id and phone number as input.
-    """
-
-    uid: str
-    phone: str
-
-
 # user data input
 @strawberry.input
 class UserDataInput:
