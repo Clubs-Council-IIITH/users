@@ -25,14 +25,14 @@ def userProfile(
     """
     User Information from LDAP
 
-    This method is used to get the profile of a user from IIITH server 
+    This method is used to get the profile of a user from IIITH server
     directory using LDAP.
-    Searched on the basis of the uid given as input or the currently logged 
+    Searched on the basis of the uid given as input or the currently logged
     user's uid.
     Accessible to all users.
 
     Args:
-        userInput (UserInput): Contains the uid of the user. Optional as if 
+        userInput (UserInput): Contains the uid of the user. Optional as if
                             not passed uses the current logged in user's info.
         info (Info): Contains the user details.
 
@@ -79,12 +79,12 @@ def userMeta(
     User information from database
 
     This method is used to get the metadata of a user from database.
-    Searched on the basis of the uid given as input or the currently logged 
+    Searched on the basis of the uid given as input or the currently logged
     user's uid.
     It hides the phone number only for public users.
 
     Args:
-        userInput (UserInput): Contains the uid of the user. Optional as if 
+        userInput (UserInput): Contains the uid of the user. Optional as if
                             not passed uses the current logged in user's info.
         info (Info): Contains the user details.
 
@@ -138,12 +138,12 @@ def usersByRole(
     info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
     """
-    This method is used to get the metadata of all users belonging to the 
+    This method is used to get the metadata of all users belonging to the
     given input role.
 
     Args:
         role (str): The role of the user.
-        inter_communication_secret (str): The secret used to authenticate 
+        inter_communication_secret (str): The secret used to authenticate
                                           the request. Defaults to None.
 
     Returns:

@@ -49,7 +49,7 @@ class User(BaseModel):
         uid (str): The user's unique identifier. Also has a validator to make
                    sure it is in lowercase.
         img (Optional[str]): The user's profile picture URL. Defaults to None.
-        role (Optional[str]): The user's role. Defaults to `public` as 
+        role (Optional[str]): The user's role. Defaults to `public` as
                               initially all users are public.
         phone (Optional[str]): The user's phone number. Defaults to None.
     """
@@ -92,7 +92,7 @@ class User(BaseModel):
     @classmethod
     def constrain_phone(cls, v):
         """
-        This method validates the given phone number according to the Indian 
+        This method validates the given phone number according to the Indian
         phone number format.
 
         Args:

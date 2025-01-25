@@ -4,9 +4,9 @@ MongoDB Initialization Module.
 This module sets up the connection to the MongoDB database.
 
 Attributes:
-    MONGO_USERNAME (str): An environment variable having MongoDB username. 
+    MONGO_USERNAME (str): An environment variable having MongoDB username.
                           Defaults to "username".
-    MONGO_PASSWORD (str): An environment variable having MongoDB password. 
+    MONGO_PASSWORD (str): An environment variable having MongoDB password.
                           Defaults to "password".
     MONGO_PORT (str): MongoDB port. Defaults to "27017".
     MONGO_URI (str): MongoDB URI.
