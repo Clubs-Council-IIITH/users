@@ -71,10 +71,12 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 @strawberry.mutation
 def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
     """
-    This method is used to update the phone number of a user by the cc and user.
+    This method is used to update the phone number of a user by the cc and 
+    user.
 
     Args:
-        userDataInput (PhoneInput): Contains the uid and phone number of the user.
+        userDataInput (PhoneInput): Contains the uid and phone number of the 
+                                    user.
         info (Info): Contains the user details.
 
     Returns:
@@ -119,7 +121,8 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
     Used to update the data of a user by CC and the User
 
     Args:
-        userDataInput (UserDataInput): Contains the uid, image and phone number of the user.
+        userDataInput (UserDataInput): Contains the uid, image and phone 
+                                       number of the user.
         info (Info): Contains the user details.
 
     Returns:

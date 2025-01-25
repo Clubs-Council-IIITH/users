@@ -46,9 +46,11 @@ class User(BaseModel):
     This model defines the structure of a user's information.
 
     Attributes:
-        uid (str): The user's unique identifier. Also has a validator to make sure it is in lowercase.
+        uid (str): The user's unique identifier. Also has a validator to make
+                   sure it is in lowercase.
         img (Optional[str]): The user's profile picture URL. Defaults to None.
-        role (Optional[str]): The user's role. Defaults to `public` as initially all users are public.
+        role (Optional[str]): The user's role. Defaults to `public` as 
+                              initially all users are public.
         phone (Optional[str]): The user's phone number. Defaults to None.
     """
 
@@ -68,7 +70,8 @@ class User(BaseModel):
     @classmethod
     def constrain_role(cls, v):
         """
-        Makes sure the user's Role is either "public", "club", "cc", "slc", or "slo".
+        Makes sure the user's Role is either "public", "club", "cc", "slc",
+        or "slo".
 
         Args:
             v (str): The role to validate.
@@ -89,7 +92,8 @@ class User(BaseModel):
     @classmethod
     def constrain_phone(cls, v):
         """
-        This method validates the given phone number according to the Indian phone number format.
+        This method validates the given phone number according to the Indian 
+        phone number format.
 
         Args:
             v (str): The phone number to validate.
