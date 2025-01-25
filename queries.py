@@ -1,3 +1,7 @@
+"""
+Query Resolvers
+"""
+
 import os
 from typing import List, Optional
 
@@ -14,13 +18,31 @@ from utils import get_profile, ldap_search
 inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
 
-# get user profile from LDAP
-# if profileInput is passed, use the provided uid
-# else return the profile of currently logged in user
 @strawberry.field
 def userProfile(
     userInput: Optional[UserInput], info: Info
 ) -> ProfileType | None:
+    """
+    User Information from LDAP
+
+    This method is used to get the profile of a user from IIITH server 
+    directory using LDAP.
+    Searched on the basis of the uid given as input or the currently logged 
+    user's uid.
+    Accessible to all users.
+
+    Args:
+        userInput (UserInput): Contains the uid of the user. Optional as if 
+                            not passed uses the current logged in user's info.
+        info (Info): Contains the user details.
+
+    Returns:
+        ProfileType: Contains the profile of the user.
+
+    Raises:
+        Exception: Could not find user profile in LDAP.
+    """
+
     user = info.context.user
 
     # if input uid is provided, use it
@@ -53,6 +75,23 @@ def userProfile(
 def userMeta(
     userInput: Optional[UserInput], info: Info
 ) -> UserMetaType | None:
+    """
+    User information from database
+
+    This method is used to get the metadata of a user from database.
+    Searched on the basis of the uid given as input or the currently logged 
+    user's uid.
+    It hides the phone number only for public users.
+
+    Args:
+        userInput (UserInput): Contains the uid of the user. Optional as if 
+                            not passed uses the current logged in user's info.
+        info (Info): Contains the user details.
+
+    Returns:
+        UserMetaType: Contains the metadata of the user.
+    """
+
     user = info.context.user
 
     # if input uid is provided, use it
@@ -98,6 +137,21 @@ def userMeta(
 def usersByRole(
     info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
+    """
+    This method is used to get the metadata of all users belonging to the 
+    given input role.
+
+    Args:
+        role (str): The role of the user.
+        inter_communication_secret (str): The secret used to authenticate 
+                                          the request. Defaults to None.
+
+    Returns:
+        List[UserMetaType]: Contains the metadata of the users.
+
+    Raises:
+        Exception: Authentication Error! Invalid secret!
+    """
     user = info.context.user
 
     if user:

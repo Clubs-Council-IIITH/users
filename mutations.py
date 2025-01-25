@@ -1,3 +1,7 @@
+"""
+Mutations for Users Microservice
+"""
+
 import os
 
 import strawberry
@@ -15,6 +19,22 @@ inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 # update role of user with uid
 @strawberry.mutation
 def updateRole(roleInput: RoleInput, info: Info) -> bool:
+    """
+    This method is used to update the role of a user by CC.
+
+    Args:
+        roleInput (RoleInput): Contains the uid and role of the user.
+        info (Info): Contains the user details.
+
+    Returns:
+        bool: True if the role is updated successfully, False otherwise.
+
+    Raises:
+        Exception: Not logged in!
+        Exception: Authentication Error! Only admins can assign roles!
+        Exception: Authentication Error! Invalid secret!
+    """
+
     user = info.context.user
     if not user:
         raise Exception("Not logged in!")
@@ -50,6 +70,24 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
 @strawberry.mutation
 def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
+    """
+    This method is used to update the phone number of a user by the cc and 
+    user.
+
+    Args:
+        userDataInput (PhoneInput): Contains the uid and phone number of the 
+                                    user.
+        info (Info): Contains the user details.
+
+    Returns:
+        bool: True if the phone number is updated successfully, False otherwise.
+
+    Raises:
+        Exception: Not logged in!
+        Exception: Invalid phone number!
+        Exception: You are not allowed to perform this action!
+    """
+
     user = info.context.user
     if not user:
         raise Exception("Not logged in!")
@@ -79,6 +117,22 @@ def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
 
 @strawberry.mutation
 def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
+    """
+    Used to update the data of a user by CC and the User
+
+    Args:
+        userDataInput (UserDataInput): Contains the uid, image and phone 
+                                       number of the user.
+        info (Info): Contains the user details.
+
+    Returns:
+        bool: True if the data is updated successfully, False otherwise.
+
+    Raises:
+        Exception: Not logged in!
+        Exception: You are not allowed to perform this action!
+    """
+
     user = info.context.user
     if not user:
         raise Exception("Not logged in!")
