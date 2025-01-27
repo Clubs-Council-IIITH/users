@@ -68,7 +68,7 @@ class User(BaseModel):
 
     @field_validator("role")
     @classmethod
-    def constrain_role(cls, v):
+    def constrain_role(cls, v) -> str:
         """
         Makes sure the user's Role is either "public", "club", "cc", "slc",
         or "slo".
@@ -90,7 +90,7 @@ class User(BaseModel):
 
     @field_validator("phone")
     @classmethod
-    def constrain_phone(cls, v):
+    def constrain_phone(cls, v) -> str | None:
         """
         This method validates the given phone number according to the Indian
         phone number format.
