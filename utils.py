@@ -10,7 +10,16 @@ from otypes import ProfileType
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 
 
-def ldap_search(filterstr: str):
+def ldap_search(filterstr: str) -> List[tuple]:
+    """
+    Fetchs details from LDAP server of user matching the filters.
+
+    Args:
+        filterstr (str): LDAP filter string.
+
+    Returns:
+        List: List of tuples containing the details of the user.
+    """
     global LDAP
     try:
         result = LDAP.search_s(
@@ -30,7 +39,17 @@ def ldap_search(filterstr: str):
     return result
 
 
-def get_profile(ldap_result: List):
+def get_profile(ldap_result: List) -> ProfileType:
+    """
+    Fetches user's ProfileType from the result of the request to LDAP server.
+
+    Args:
+        ldap_result (List): List of tuples containing the details of the user.
+
+    Returns:
+        ProfileType: Contains the profile of the user.
+    """
+
     dn, details = ldap_result
     ous = re.findall(
         r"ou=\w.*?,", dn
