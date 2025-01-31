@@ -49,10 +49,11 @@ PyObjectIdType = strawberry.scalar(
 
 # user profile type
 @strawberry.type
-class ProfileType:  
+class ProfileType:
     """
     Type used for returning user details stored in LDAP server.
     """
+
     uid: str | None
     firstName: str
     lastName: str
