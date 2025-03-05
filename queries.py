@@ -37,7 +37,7 @@ def userProfile(
         info (Info): Contains the user details.
 
     Returns:
-        Contains the profile of the user.
+        (ProfileType | None): Contains the profile of the user.
 
     Raises:
         Exception: Could not find user profile in LDAP.
@@ -89,7 +89,7 @@ def userMeta(
         info (Info): Contains the user details.
 
     Returns:
-        Contains the metadata of the user.
+        (UserMetaType | None): Contains the metadata of the user.
     """
 
     user = info.context.user
@@ -147,7 +147,7 @@ def usersByRole(
                                           the request. Defaults to None.
 
     Returns:
-        Contains the metadata of the users.
+        (List[UserMetaType]): Contains the metadata of the users.
 
     Raises:
         Exception: Authentication Error! Invalid secret!
@@ -181,7 +181,7 @@ def usersByBatch(batch_year: int) -> List[ProfileType]:
         batch_year (int): The batch year of the user.
 
     Returns:
-        Contains the profiles of the users.
+        (List[ProfileType]): Contains the profiles of the users.
 
     Raises:
         Exception: Could not find user profiles
@@ -230,7 +230,7 @@ def usersByList(
         info (Info): Contains the user details.
 
     Returns:
-        Contains the profiles of the users.
+        (List[Optional[ProfileType]]): Contains the profiles of the users.
     """
 
     profiles = []
