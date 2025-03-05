@@ -77,7 +77,7 @@ class User(BaseModel):
             v (str): The role to validate.
 
         Returns:
-            str: The validated role.
+            The validated role.
 
         Raises:
             ValueError: If the given role is not valid.
@@ -99,7 +99,7 @@ class User(BaseModel):
             v (str): The phone number to validate.
 
         Returns:
-            str: The validated phone number. without country code.
+            The validated phone number without country code.
 
         Raises:
             ValueError: If the given phone number is not valid.

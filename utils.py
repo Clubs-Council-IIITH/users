@@ -18,7 +18,7 @@ def ldap_search(filterstr: str) -> List[tuple]:
         filterstr (str): LDAP filter string.
 
     Returns:
-        List: List of tuples containing the details of the user.
+        List of tuples containing the details of the user.
     """
     global LDAP
     try:
@@ -47,7 +47,7 @@ def get_profile(ldap_result: List) -> ProfileType:
         ldap_result (List): List of tuples containing the details of the user.
 
     Returns:
-        ProfileType: Contains the profile of the user.
+        Contains the profile of the user.
     """
 
     dn, details = ldap_result

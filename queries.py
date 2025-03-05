@@ -37,7 +37,7 @@ def userProfile(
         info (Info): Contains the user details.
 
     Returns:
-        ProfileType: Contains the profile of the user.
+        Contains the profile of the user.
 
     Raises:
         Exception: Could not find user profile in LDAP.
@@ -89,7 +89,7 @@ def userMeta(
         info (Info): Contains the user details.
 
     Returns:
-        UserMetaType: Contains the metadata of the user.
+        Contains the metadata of the user.
     """
 
     user = info.context.user
@@ -147,7 +147,7 @@ def usersByRole(
                                           the request. Defaults to None.
 
     Returns:
-        List[UserMetaType]: Contains the metadata of the users.
+        Contains the metadata of the users.
 
     Raises:
         Exception: Authentication Error! Invalid secret!
@@ -171,6 +171,22 @@ def usersByRole(
 
 @strawberry.field
 def usersByBatch(batch_year: int) -> List[ProfileType]:
+    """
+    This method is used to get the profiles
+    of all users belonging to the
+    given input batch year, from UG, MS,
+    MTECH, PG and PHD batches.
+
+    Args:
+        batch_year (int): The batch year of the user.
+
+    Returns:
+        Contains the profiles of the users.
+
+    Raises:
+        Exception: Could not find user profiles
+                    for given batch year in LDAP!
+    """
     if batch_year < 18 or batch_year > 100:
         return []
 
@@ -204,6 +220,19 @@ def usersByBatch(batch_year: int) -> List[ProfileType]:
 def usersByList(
     info: Info, userInputs: List[UserInput]
 ) -> List[Optional[ProfileType]]:
+    """
+    This method is used to get the profiles of all
+    users belonging to the input array of uids.
+
+    Args:
+        userInputs (List[UserInput]): The list of
+                                        uids of the users.
+        info (Info): Contains the user details.
+
+    Returns:
+        Contains the profiles of the users.
+    """
+
     profiles = []
 
     filterstr = (
