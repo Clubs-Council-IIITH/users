@@ -27,7 +27,7 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
         info (Info): Contains the user details.
 
     Returns:
-        bool: True if the role is updated successfully, False otherwise.
+        (bool): True if the role is updated successfully, False otherwise.
 
     Raises:
         Exception: Not logged in!
@@ -80,8 +80,8 @@ def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
         info (Info): Contains the user details.
 
     Returns:
-        bool: True if the phone number is updated successfully,
-              False otherwise.
+        (bool): True if the phone number is updated successfully,
+            False otherwise.
 
     Raises:
         Exception: Not logged in!
@@ -127,7 +127,7 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
         info (Info): Contains the user details.
 
     Returns:
-        bool: True if the data is updated successfully, False otherwise.
+        (bool): True if the data is updated successfully, False otherwise.
 
     Raises:
         Exception: Not logged in!
