@@ -170,7 +170,9 @@ def usersByRole(
 
 
 @strawberry.field
-def usersByBatch(batch_year: int) -> List[ProfileType]:
+def usersByBatch(
+    batch_year: int, ug: bool = True, pg: bool = True
+) -> List[ProfileType]:
     """
     This method is used to get the profiles
     of all users belonging to the
@@ -190,11 +192,27 @@ def usersByBatch(batch_year: int) -> List[ProfileType]:
     if batch_year < 18 or batch_year > 100:
         return []
 
-    prefixes = ["ug2k", "ms2k", "mtech2k", "pgssp2k", "phd2k"]
+    if not (ug or pg):
+        return []
 
-    full_ous = [prefix + str(batch_year) for prefix in prefixes]
-    full_ous.append(f"le2k{batch_year + 1}")
-    full_ous.append(f"ug2k{batch_year}dual")
+    full_ous = []
+    if ug:
+        full_ous.extend(
+            [
+                f"ug2k{batch_year}",
+                f"ug2k{batch_year}dual",
+                f"le2k{batch_year + 1}",
+            ]
+        )
+    if pg:
+        full_ous.extend(
+            [
+                f"ms2k{batch_year}",
+                f"mtech2k{batch_year}",
+                f"pgssp2k{batch_year}",
+                f"phd2k{batch_year}",
+            ]
+        )
 
     filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
 
