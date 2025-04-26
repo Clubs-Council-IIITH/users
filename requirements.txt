@@ -5,7 +5,7 @@ email_validator >=2.2.0
 fastapi==0.115.12
 graphql-core==3.2.6
 greenlet==3.1.1
-h11==0.14.0
+h11==0.16.0
 idna==3.10
 libcst==1.7.0
 msgpack==1.1.0
