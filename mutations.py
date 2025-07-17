@@ -18,7 +18,7 @@ inter_communication_secret = os.getenv("INTER_COMMUNICATION_SECRET")
 
 # update role of user with uid
 @strawberry.mutation
-def updateRole(roleInput: RoleInput, info: Info) -> bool:
+async def updateRole(roleInput: RoleInput, info: Info) -> bool:
     """
     This method is used to update the role of a user by CC.
 
@@ -52,15 +52,15 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
     ):
         raise Exception("Authentication Error! Invalid secret!")
 
-    db_user = db.users.find_one({"uid": roleInputData["uid"]})
+    db_user = await db.users.find_one({"uid": roleInputData["uid"]})
 
     # insert if not exists
     if not db_user:
         new_user = User(uid=roleInputData["uid"])
-        db.users.insert_one(jsonable_encoder(new_user))
+        await db.users.insert_one(jsonable_encoder(new_user))
 
     # update role in database
-    db.users.update_one(
+    await db.users.update_one(
         {"uid": roleInputData["uid"]},
         {"$set": {"role": roleInputData["role"]}},
     )
@@ -69,7 +69,7 @@ def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
 
 @strawberry.mutation
-def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
+async def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
     """
     This method is used to update the phone number of a user by the cc and
     user.
@@ -108,7 +108,7 @@ def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
     ):
         raise Exception("You are not allowed to perform this action!")
 
-    db.users.update_one(
+    await db.users.update_one(
         {"uid": userData["uid"]},
         {"$set": {"phone": userData["phone"]}},
     )
@@ -117,7 +117,7 @@ def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
 
 
 @strawberry.mutation
-def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
+async def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
     """
     Used to update the data of a user by CC and the User
 
@@ -150,7 +150,7 @@ def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
     # Validate the data by putting in the model
     User(**userData)
 
-    db.users.update_one(
+    await db.users.update_one(
         {"uid": userData["uid"]},
         {"$set": {"img": userData["img"], "phone": userData["phone"]}},
     )
