@@ -17,7 +17,7 @@ Attributes:
 
 from os import getenv
 
-from pymongo import MongoClient
+from pymongo import AsyncMongoClient
 
 # get mongodb URI and database name from environment variable
 MONGO_URI = "mongodb://{}:{}@mongo:{}/".format(
@@ -28,7 +28,7 @@ MONGO_URI = "mongodb://{}:{}@mongo:{}/".format(
 MONGO_DATABASE = getenv("MONGO_DATABASE", default="default")
 
 # instantiate mongo client
-client = MongoClient(MONGO_URI)
+client = AsyncMongoClient(MONGO_URI)
 
 # get database
 db = client[MONGO_DATABASE]

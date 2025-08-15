@@ -1,5 +1,6 @@
 import re
 from typing import List
+import asyncio
 
 import ldap
 
@@ -10,7 +11,7 @@ from otypes import ProfileType
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 
 
-def ldap_search(filterstr: str) -> List[tuple]:
+async def ldap_search(filterstr: str) -> List[tuple]:
     """
     Fetchs details from LDAP server of user matching the filters.
 
@@ -21,19 +22,26 @@ def ldap_search(filterstr: str) -> List[tuple]:
         (List[tuple]): List of tuples containing the details of the user.
     """
     global LDAP
+    loop = asyncio.get_event_loop()
     try:
-        result = LDAP.search_s(
-            "ou=Users,dc=iiit,dc=ac,dc=in",
-            ldap.SCOPE_SUBTREE,
-            filterstr,
+        result = await loop.run_in_executor(
+            None,
+            lambda: LDAP.search_s(
+                "ou=Users,dc=iiit,dc=ac,dc=in",
+                ldap.SCOPE_SUBTREE,
+                filterstr,
+            ),
         )
     except ldap.SERVER_DOWN:
         # Reconnect to LDAP server and retry the search
         LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
-        result = LDAP.search_s(
-            "ou=Users,dc=iiit,dc=ac,dc=in",
-            ldap.SCOPE_SUBTREE,
-            filterstr,
+        result = await loop.run_in_executor(
+            None,
+            lambda: LDAP.search_s(
+                "ou=Users,dc=iiit,dc=ac,dc=in",
+                ldap.SCOPE_SUBTREE,
+                filterstr,
+            ),
         )
 
     return result
