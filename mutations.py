@@ -52,17 +52,13 @@ async def updateRole(roleInput: RoleInput, info: Info) -> bool:
     ):
         raise Exception("Authentication Error! Invalid secret!")
 
-    db_user = await db.users.find_one({"uid": roleInputData["uid"]})
-
-    # insert if not exists
-    if not db_user:
-        new_user = User(uid=roleInputData["uid"])
-        await db.users.insert_one(jsonable_encoder(new_user))
-
-    # update role in database
     await db.users.update_one(
         {"uid": roleInputData["uid"]},
-        {"$set": {"role": roleInputData["role"]}},
+        {
+            "$set": {"role": roleInputData["role"]},
+            "$setOnInsert": jsonable_encoder(User(uid=roleInputData["uid"])),
+        },
+        upsert=True,
     )
 
     return True
