@@ -19,7 +19,7 @@ inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
 
 @strawberry.field
-def userProfile(
+async def userProfile(
     userInput: Optional[UserInput], info: Info
 ) -> ProfileType | None:
     """
@@ -60,7 +60,7 @@ def userProfile(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
-    result = ldap_search(f"(uid={target})")
+    result = await ldap_search(f"(uid={target})")
 
     # error out if LDAP query fails
     if not result:
@@ -72,7 +72,7 @@ def userProfile(
 
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
-def userMeta(
+async def userMeta(
     userInput: Optional[UserInput], info: Info
 ) -> UserMetaType | None:
     """
@@ -111,14 +111,14 @@ def userMeta(
     target = target.lower()
 
     # query database for user
-    found_user = db.users.find_one({"uid": target})
+    found_user = await db.users.find_one({"uid": target})
 
     # if user doesn't exist, add to database
     if found_user:
         found_user = User.model_validate(found_user)
     else:
         found_user = User(uid=target)
-        db.users.insert_one(jsonable_encoder(found_user))
+        await db.users.insert_one(jsonable_encoder(found_user))
 
     found_user.uid = target
 
@@ -134,7 +134,7 @@ def userMeta(
 
 # get all users belonging to the input role
 @strawberry.field
-def usersByRole(
+async def usersByRole(
     info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
     """
@@ -163,14 +163,14 @@ def usersByRole(
     if inter_communication_secret != inter_communication_secret_global:
         raise Exception("Authentication Error! Invalid secret!")
 
-    users = db.users.find({"role": role})
+    users = await db.users.find({"role": role}).to_list(length=None)
     return [
         UserMetaType.from_pydantic(User.model_validate(user)) for user in users
     ]
 
 
 @strawberry.field
-def usersByBatch(
+async def usersByBatch(
     batch_year: int, ug: bool = True, pg: bool = True
 ) -> List[ProfileType]:
     """
@@ -216,7 +216,7 @@ def usersByBatch(
 
     filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
 
-    result = ldap_search(filterstr)
+    result = await ldap_search(filterstr)
 
     # error out if LDAP query fails
     if not result:
@@ -235,7 +235,7 @@ def usersByBatch(
 
 # get all users in the given list of uids
 @strawberry.field
-def usersByList(
+async def usersByList(
     info: Info, userInputs: List[UserInput]
 ) -> List[Optional[ProfileType]]:
     """
@@ -256,7 +256,7 @@ def usersByList(
     filterstr = (
         f"(|{''.join(f'(uid={userInput.uid})' for userInput in userInputs)})"
     )
-    results: List = ldap_search(filterstr)
+    results: List = await ldap_search(filterstr)
 
     # Make a list of successful profiles
     resultUids = [result[1]["uid"][0].decode() for result in results]
