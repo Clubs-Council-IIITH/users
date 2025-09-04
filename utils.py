@@ -1,6 +1,6 @@
+import asyncio
 import re
 from typing import List
-import asyncio
 
 import ldap
 
