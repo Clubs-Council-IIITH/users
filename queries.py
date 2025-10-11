@@ -32,12 +32,12 @@ async def userProfile(
     Accessible to all users.
 
     Args:
-        userInput (UserInput): Contains the uid of the user. Optional as if
+        userInput (otypes.UserInput): Contains uid of a user. Optional as if
                             not passed uses the current logged in user's info.
-        info (Info): Contains the user details.
+        info (otypes.Info): Contains the user details.
 
     Returns:
-        (ProfileType | None): Contains the profile of the user.
+        (otypes.ProfileType | None): Contains the profile of the user.
 
     Raises:
         Exception: Could not find user profile in LDAP.
@@ -84,12 +84,12 @@ async def userMeta(
     It hides the phone number only for public users.
 
     Args:
-        userInput (UserInput): Contains the uid of the user. Optional as if
+        userInput (otypes.UserInput): Contains uid of a user. Optional as if
                             not passed uses the current logged in user's info.
-        info (Info): Contains the user details.
+        info (otypes.Info): Contains the user details.
 
     Returns:
-        (UserMetaType | None): Contains the metadata of the user.
+        (otypes.UserMetaType | None): Contains the metadata of the user.
     """
 
     user = info.context.user
@@ -147,7 +147,7 @@ async def usersByRole(
                                           the request. Defaults to None.
 
     Returns:
-        (List[UserMetaType]): Contains the metadata of the users.
+        (List[otypes.UserMetaType]): Contains the metadata of the users.
 
     Raises:
         Exception: Authentication Error! Invalid secret!
@@ -183,7 +183,7 @@ async def usersByBatch(
         batch_year (int): The batch year of the user.
 
     Returns:
-        (List[ProfileType]): Contains the profiles of the users.
+        (List[otypes.ProfileType]): Contains the profiles of the users.
 
     Raises:
         Exception: Could not find user profiles
@@ -243,12 +243,12 @@ async def usersByList(
     users belonging to the input array of uids.
 
     Args:
-        userInputs (List[UserInput]): The list of
+        userInputs (List[otypes.UserInput]): The list of
                                         uids of the users.
         info (Info): Contains the user details.
 
     Returns:
-        (List[Optional[ProfileType]]): Contains the profiles of the users.
+        (List[Optional[otypes.ProfileType]]): Contains profiles of the users.
     """
 
     profiles = []

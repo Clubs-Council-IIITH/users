@@ -23,8 +23,8 @@ async def updateRole(roleInput: RoleInput, info: Info) -> bool:
     This method is used to update the role of a user by CC.
 
     Args:
-        roleInput (RoleInput): Contains the uid and role of the user.
-        info (Info): Contains the user details.
+        roleInput (otypes.RoleInput): Contains the uid and role of the user.
+        info (otypes.Info): Contains the user details.
 
     Returns:
         (bool): True if the role is updated successfully, False otherwise.
@@ -71,9 +71,9 @@ async def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
     user.
 
     Args:
-        userDataInput (PhoneInput): Contains the uid and phone number of the
-                                    user.
-        info (Info): Contains the user details.
+        userDataInput (otypes.PhoneInput): Contains the uid and
+                                         phone number of the user.
+        info (otypes.Info): Contains the user details.
 
     Returns:
         (bool): True if the phone number is updated successfully,
@@ -118,9 +118,9 @@ async def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
     Used to update the data of a user by CC and the User
 
     Args:
-        userDataInput (UserDataInput): Contains the uid, image and phone
+        userDataInput (otypes.UserDataInput): Contains the uid, image and phone
                                        number of the user.
-        info (Info): Contains the user details.
+        info (otypes.Info): Contains the user details.
 
     Returns:
         (bool): True if the data is updated successfully, False otherwise.
