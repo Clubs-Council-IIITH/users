@@ -52,6 +52,16 @@ PyObjectIdType = strawberry.scalar(
 class ProfileType:
     """
     Type used for returning user details stored in LDAP server.
+
+    Attributes:
+        uid (str): User ID, can be None.
+        firstName (str): User's first name.
+        lastName (str): User's last name.
+        email (str): User's email address
+        gender (str): User's gender, can be None.
+        batch (str): User's batch, can be None.
+        stream (str): User's stream, can be None.
+        rollno (str): User's roll number, can be None.
     """
 
     uid: str | None
@@ -69,6 +79,12 @@ class ProfileType:
 class UserMetaType:
     """
     Type used for returning user details stored in the database.
+
+    Attributes:
+        uid (str): User ID.
+        role (str): User's role in management level.
+        img (str): user's profile image, can be None.
+        phone (str): User's phone number, can be None.
     """
 
     uid: strawberry.auto
@@ -82,6 +98,9 @@ class UserMetaType:
 class UserInput:
     """
     Input used to take user id as input.
+
+    Attributes:
+        uid (str): User ID.
     """
 
     uid: str
@@ -92,6 +111,12 @@ class UserInput:
 class RoleInput:
     """
     Input used to take user id and role as input.
+
+    Attributes:
+        uid (str): User ID.
+        role (str): User's role in management level.
+        inter_communication_secret (str): Secret for inter-service
+                                    communication. Defaults to None.
     """
 
     uid: str
@@ -104,6 +129,10 @@ class RoleInput:
 class PhoneInput:
     """
     Input used to take user id and phone number as input.
+
+    Attributes:
+        uid (str): User ID.
+        phone (str): User's phone number.
     """
 
     uid: str
@@ -115,6 +144,11 @@ class PhoneInput:
 class UserDataInput:
     """
     Input used to take user id, image and phone number as input.
+
+    Attributes:
+        uid (str): User ID.
+        img (str): User's profile image, can be None.
+        phone (str): User's phone number.
     """
 
     uid: str

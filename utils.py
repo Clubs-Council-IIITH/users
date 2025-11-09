@@ -55,7 +55,7 @@ def get_profile(ldap_result: List) -> ProfileType:
         ldap_result (List): List of tuples containing the details of the user.
 
     Returns:
-        (ProfileType): Contains the profile of the user.
+        (otypes.ProfileType): Contains the profile of the user.
     """
 
     dn, details = ldap_result
