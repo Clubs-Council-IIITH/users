@@ -100,7 +100,7 @@ class UserInput:
     Input used to take user id as input.
 
     Attributes:
-    uid (str): User ID.
+        uid (str): User ID.
     """
 
     uid: str
@@ -113,10 +113,10 @@ class RoleInput:
     Input used to take user id and role as input.
 
     Attributes:
-    uid (str): User ID.
-    role (str): User's role in management level.
-    inter_communication_secret (str): Secret for inter-service communication.
-                                         Defaults to None.
+        uid (str): User ID.
+        role (str): User's role in management level.
+        inter_communication_secret (str): Secret for inter-service
+                                    communication. Defaults to None.
     """
 
     uid: str
@@ -131,8 +131,8 @@ class PhoneInput:
     Input used to take user id and phone number as input.
 
     Attributes:
-    uid (str): User ID.
-    phone (str): User's phone number.
+        uid (str): User ID.
+        phone (str): User's phone number.
     """
 
     uid: str
@@ -146,9 +146,9 @@ class UserDataInput:
     Input used to take user id, image and phone number as input.
 
     Attributes:
-    uid (str): User ID.
-    img (str): User's profile image, can be None.
-    phone (str): User's phone number.
+        uid (str): User ID.
+        img (str): User's profile image, can be None.
+        phone (str): User's phone number.
     """
 
     uid: str
