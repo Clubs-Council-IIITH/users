@@ -32,8 +32,9 @@ async def userProfile(
     Accessible to all users.
 
     Args:
-        userInput (Optional[otypes.UserInput]): Contains uid of a user. Optional as if
-                            not passed uses the current logged in user's info.
+        userInput (Optional[otypes.UserInput]): Contains uid of a user.
+                            Optional as if not passed uses the logged
+                            in user's info.
         info (otypes.Info): Contains the user details.
 
     Returns:
@@ -84,8 +85,9 @@ async def userMeta(
     It hides the phone number only for public users.
 
     Args:
-        userInput (Optional[otypes.UserInput]): Contains uid of a user. Optional as if
-                            not passed uses the current logged in user's info.
+        userInput (Optional[otypes.UserInput]): Contains uid of a user.
+                            Optional as if not passed uses the current
+                             logged in user's info.
         info (otypes.Info): Contains the user details.
 
     Returns:
@@ -144,7 +146,7 @@ async def usersByRole(
     Args:
         info (otypes.Info): Contains the user details.
         role (str): The role of the user.
-        inter_communication_secret (str | None): The secret used to authenticate
+        inter_communication_secret (str | None): secret used to authenticate
                                           the request. Defaults to None.
 
     Returns:
