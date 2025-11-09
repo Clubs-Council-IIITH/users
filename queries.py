@@ -32,7 +32,7 @@ async def userProfile(
     Accessible to all users.
 
     Args:
-        userInput (otypes.UserInput): Contains uid of a user. Optional as if
+        userInput (Optional[otypes.UserInput]): Contains uid of a user. Optional as if
                             not passed uses the current logged in user's info.
         info (otypes.Info): Contains the user details.
 
@@ -84,7 +84,7 @@ async def userMeta(
     It hides the phone number only for public users.
 
     Args:
-        userInput (otypes.UserInput): Contains uid of a user. Optional as if
+        userInput (Optional[otypes.UserInput]): Contains uid of a user. Optional as if
                             not passed uses the current logged in user's info.
         info (otypes.Info): Contains the user details.
 
@@ -142,8 +142,9 @@ async def usersByRole(
     given input role.
 
     Args:
+        info (otypes.Info): Contains the user details.
         role (str): The role of the user.
-        inter_communication_secret (str): The secret used to authenticate
+        inter_communication_secret (str | None): The secret used to authenticate
                                           the request. Defaults to None.
 
     Returns:
@@ -181,6 +182,8 @@ async def usersByBatch(
 
     Args:
         batch_year (int): The batch year of the user.
+        ug (bool): Whether to include UG students. Defaults to True.
+        pg (bool): Whether to include PG students. Defaults to True.
 
     Returns:
         (List[otypes.ProfileType]): Contains the profiles of the users.
@@ -245,7 +248,7 @@ async def usersByList(
     Args:
         userInputs (List[otypes.UserInput]): The list of
                                         uids of the users.
-        info (Info): Contains the user details.
+        info (otypes.Info): Contains the user details.
 
     Returns:
         (List[Optional[otypes.ProfileType]]): Contains profiles of the users.
