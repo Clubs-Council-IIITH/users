@@ -20,7 +20,6 @@ pymongo==4.13.2
 python-dateutil>=2.9.0.post0
 python-ldap==3.4.4
 python-multipart>=0.0.20
-pytz==2025.2
 requests>=2.32.3
 rich==14.0.0
 six==1.17.0
