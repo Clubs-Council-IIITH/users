@@ -56,7 +56,7 @@ async def updateRole(roleInput: RoleInput, info: Info) -> bool:
         {"uid": roleInputData["uid"]},
         {
             "$set": {"role": roleInputData["role"]},
-            "$setOnInsert": jsonable_encoder(User(uid=roleInputData["uid"])),
+            "$setOnInsert": {"uid": roleInputData["uid"]},
         },
         upsert=True,
     )
