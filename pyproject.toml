@@ -1,7 +1,9 @@
 [project]
-name = "users"
+name = "users-subgraph"
 version = "1.0.0"
-requires-python = ">=3.10"
+readme = "README.md"
+
+requires-python = ">=3.11"
 dependencies = [
     "anyio==4.9.0",
     "click==8.1.8",
