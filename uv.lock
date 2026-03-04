@@ -425,10 +425,6 @@ cli = [
     { name = "uvicorn" },
     { name = "websockets" },
 ]
-fastapi = [
-    { name = "fastapi" },
-    { name = "python-multipart" },
-]
 
 [[package]]
 name = "typer"
@@ -476,7 +472,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pymongo" },
     { name = "python-ldap" },
-    { name = "strawberry-graphql", extra = ["cli", "fastapi"] },
+    { name = "strawberry-graphql", extra = ["cli"] },
     { name = "typing-extensions" },
     { name = "uvicorn" },
 ]
@@ -488,7 +484,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.12.5,<3.0.0" },
     { name = "pymongo", specifier = "==4.16.0" },
     { name = "python-ldap", specifier = "==3.4.5" },
-    { name = "strawberry-graphql", extras = ["cli", "fastapi"], specifier = "==0.308.2" },
+    { name = "strawberry-graphql", extras = ["cli"], specifier = "==0.308.2" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
     { name = "uvicorn", specifier = "==0.41.0" },
 ]
