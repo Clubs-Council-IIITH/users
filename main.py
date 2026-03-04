@@ -50,6 +50,6 @@ schema = strawberry.federation.Schema(
 DEBUG = getenv("GLOBAL_DEBUG", "False").lower() in ("true", "1", "t")
 
 # serve API with FastAPI router
-gql_app = GraphQLRouter(schema, graphql_ide="graphiql", context_getter=get_context)
+gql_app = GraphQLRouter(schema, context_getter=get_context)
 app = FastAPI(debug=DEBUG)
 app.include_router(gql_app, prefix="/graphql")
