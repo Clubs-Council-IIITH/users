@@ -1,7 +1,7 @@
 # cache dependencies
-FROM python:3.14-slim AS python_cache
+FROM python:3.14-slim-slim AS python_cache
 COPY --from=ghcr.io/astral-sh/uv:0.10 /uv /uvx /bin/
-RUN apt-get update && apt-get install libsasl2-dev python3-dev libldap2-dev libssl-dev slapd -y
+RUN apt-get update && apt-get install ldap-utils libsasl2-dev libldap2-dev -y
 
 FROM python_cache AS dependencies
 
@@ -19,14 +19,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # build and start
 FROM python:3.14-slim AS build
 EXPOSE 80
-
-RUN apt-get update && apt-get install libldap-2.5.0 -y
-RUN apt-get install -y \
-    libldap2-dev \
-    libsasl2-2 \
-    libsasl2-dev \
-    libssl3 \
-    libssl-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libldap2 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV VIRTUAL_ENV=/opt/venv

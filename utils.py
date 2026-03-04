@@ -74,10 +74,6 @@ def get_profile(ldap_result: List) -> ProfileType:
         firstName = small_fn.capitalize()
         lastName = small_ln.capitalize()
 
-    email = None
-    if "mail" in details:
-        email = details["mail"][0].decode()
-
     # extract optional attributes
     gender = None
     if "gender" in details:
@@ -104,6 +100,14 @@ def get_profile(ldap_result: List) -> ProfileType:
     uid = None
     if "uid" in details:
         uid = details["uid"][0].decode()
+
+    email = None
+    if "mail" in details:
+        email = details["mail"][0].decode()
+    elif uid is not None:
+        email = f"{uid}@iiit.ac.in"
+    else:
+        email = ""
 
     profile = ProfileType(
         uid=uid,
