@@ -1,5 +1,5 @@
 # cache dependencies
-FROM python:3.14-slim-slim AS python_cache
+FROM python:3.14-slim AS python_cache
 COPY --from=ghcr.io/astral-sh/uv:0.10 /uv /uvx /bin/
 RUN apt-get update && apt-get install ldap-utils libsasl2-dev libldap2-dev -y
 
