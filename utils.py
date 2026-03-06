@@ -1,6 +1,8 @@
 import asyncio
 import re
 from typing import List
+from cachetools import TTLCache
+from asyncache import cached
 
 import ldap
 
@@ -10,7 +12,11 @@ from otypes import ProfileType
 # instantiate LDAP client
 LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 
+# cache ldap_search for 15 days
+CACHE_TTL = 15*24*60*60
+cache = TTLCache(maxsize=512, ttl=CACHE_TTL)
 
+@cached(cache)
 async def ldap_search(filterstr: str) -> List[tuple]:
     """
     Fetchs details from LDAP server of user matching the filters.
