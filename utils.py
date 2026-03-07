@@ -2,7 +2,6 @@ import asyncio
 import re
 from typing import List
 from cachetools import TTLCache
-from asyncache import cached
 
 import ldap
 
@@ -14,9 +13,8 @@ LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
 
 # cache ldap_search for 15 days
 CACHE_TTL = 15*24*60*60
-cache = TTLCache(maxsize=512, ttl=CACHE_TTL)
+LDAP_CACHE = TTLCache(maxsize=512, ttl=CACHE_TTL)
 
-@cached(cache)
 async def ldap_search(filterstr: str) -> List[tuple]:
     """
     Fetchs details from LDAP server of user matching the filters.
@@ -27,6 +25,11 @@ async def ldap_search(filterstr: str) -> List[tuple]:
     Returns:
         (List[tuple]): List of tuples containing the details of the user.
     """
+
+    # check the cache first
+    if filterstr in LDAP_CACHE:
+        return LDAP_CACHE[filterstr]
+    
     global LDAP
     loop = asyncio.get_event_loop()
     try:
@@ -50,6 +53,7 @@ async def ldap_search(filterstr: str) -> List[tuple]:
             ),
         )
 
+    LDAP_CACHE[filterstr] = result
     return result
 
 
