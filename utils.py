@@ -1,4 +1,5 @@
 import asyncio
+import os
 import re
 from typing import List
 
@@ -8,7 +9,8 @@ import ldap
 from otypes import ProfileType
 
 # instantiate LDAP client
-LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
+LDAP_HOST = os.getenv("LDAP_HOST", "ldap://ldap.iiit.ac.in")
+LDAP = ldap.initialize(LDAP_HOST)
 
 
 async def ldap_search(filterstr: str) -> List[tuple]:
