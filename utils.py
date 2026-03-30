@@ -8,8 +8,8 @@ import ldap
 # import all models and types
 from otypes import ProfileType
 
-# instantiate LDAP client
-LDAP_HOST = os.getenv("LDAP_HOST", "ldap://ldap.iiit.ac.in")
+# LDAP Host
+LDAP_HOST = os.getenv("LDAP_HOST", "ldaps://ldap.iiit.ac.in")
 LDAP = ldap.initialize(LDAP_HOST)
 
 
@@ -36,7 +36,7 @@ async def ldap_search(filterstr: str) -> List[tuple]:
         )
     except ldap.SERVER_DOWN:
         # Reconnect to LDAP server and retry the search
-        LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
+        LDAP = ldap.initialize(LDAP_HOST)
         result = await loop.run_in_executor(
             None,
             lambda: LDAP.search_s(
