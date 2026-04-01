@@ -1,4 +1,5 @@
 import asyncio
+import os
 import re
 from typing import List
 from cachetools import TTLCache
@@ -8,8 +9,9 @@ import ldap
 # import all models and types
 from otypes import ProfileType
 
-# instantiate LDAP client
-LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
+# LDAP Host
+LDAP_HOST = os.getenv("LDAP_HOST", "ldaps://ldap.iiit.ac.in")
+LDAP = ldap.initialize(LDAP_HOST)
 
 # cache ldap_search for 15 days
 CACHE_TTL = 15*24*60*60
@@ -43,7 +45,7 @@ async def ldap_search(filterstr: str) -> List[tuple]:
         )
     except ldap.SERVER_DOWN:
         # Reconnect to LDAP server and retry the search
-        LDAP = ldap.initialize("ldap://ldap.iiit.ac.in")
+        LDAP = ldap.initialize(LDAP_HOST)
         result = await loop.run_in_executor(
             None,
             lambda: LDAP.search_s(
