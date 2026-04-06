@@ -12,6 +12,7 @@ from os import getenv, makedirs
 from pymongo import MongoClient
 
 from utils import ldap_search
+from ldap.filter import escape_filter_chars
 
 MONGO_URI = "mongodb://{}:{}@mongo:{}/".format(
     getenv("MONGO_USERNAME", default="username"),
@@ -65,7 +66,7 @@ with open("reports/members_without_images.csv", "w", newline="") as csvfile:
 
     # Write the data
     for users in userlist:
-        result = ldap_search(f"(uid={users})")
+        result = ldap_search(f"(uid={escape_filter_chars(users)})")
         try:
             dn, details = result[-1]
             email = details["mail"][0].decode()

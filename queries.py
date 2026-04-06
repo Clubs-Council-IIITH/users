@@ -10,6 +10,8 @@ from fastapi.encoders import jsonable_encoder
 
 from db import db
 
+from ldap.filter import escape_filter_chars
+
 # import all models and types
 from models import User
 from otypes import Info, ProfileType, UserInput, UserMetaType
@@ -61,7 +63,7 @@ async def userProfile(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
-    result = await ldap_search(f"(uid={target})")
+    result = await ldap_search(f"(uid={escape_filter_chars(target)})")
 
     # error out if LDAP query fails
     if not result:
@@ -219,7 +221,7 @@ async def usersByBatch(
             ]
         )
 
-    filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
+    filterstr = f"(&(|{''.join(f'(ou:dn:={escape_filter_chars(ou)})' for ou in full_ous)})(uid=*))"
 
     result = await ldap_search(filterstr)
 
@@ -259,7 +261,7 @@ async def usersByList(
     profiles = []
 
     filterstr = (
-        f"(|{''.join(f'(uid={userInput.uid})' for userInput in userInputs)})"
+        f"(|{''.join(f'(uid={escape_filter_chars(userInput.uid)})' for userInput in userInputs)})"
     )
     results: List = await ldap_search(filterstr)
 
