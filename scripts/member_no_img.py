@@ -9,10 +9,10 @@ import csv
 from datetime import datetime
 from os import getenv, makedirs
 
+from ldap.filter import escape_filter_chars
 from pymongo import MongoClient
 
 from utils import ldap_search
-from ldap.filter import escape_filter_chars
 
 MONGO_URI = "mongodb://{}:{}@mongo:{}/".format(
     getenv("MONGO_USERNAME", default="username"),
