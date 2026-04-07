@@ -10,6 +10,8 @@ from fastapi.encoders import jsonable_encoder
 
 from db import db
 
+from ldap.filter import escape_filter_chars
+
 # import all models and types
 from models import User
 from otypes import Info, ProfileType, UserInput, UserMetaType
@@ -20,7 +22,7 @@ inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
 @strawberry.field
 async def userProfile(
-    userInput: Optional[UserInput], info: Info
+        userInput: Optional[UserInput], info: Info
 ) -> ProfileType | None:
     """
     User Information from LDAP
@@ -61,7 +63,7 @@ async def userProfile(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
-    result = await ldap_search(f"(uid={target})")
+    result = await ldap_search(f"(uid={escape_filter_chars(target)})")
 
     # error out if LDAP query fails
     if not result:
@@ -74,7 +76,7 @@ async def userProfile(
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
 async def userMeta(
-    userInput: Optional[UserInput], info: Info
+        userInput: Optional[UserInput], info: Info
 ) -> UserMetaType | None:
     """
     User information from database
@@ -125,8 +127,8 @@ async def userMeta(
     found_user.uid = target
 
     if not user or (
-        user["role"] not in ["cc", "slo", "slc", "club"]
-        and user["uid"] != target
+            user["role"] not in ["cc", "slo", "slc", "club"]
+            and user["uid"] != target
     ):
         # if user is not authorized to see phone number, hide the phone number
         found_user.phone = None
@@ -137,7 +139,7 @@ async def userMeta(
 # get all users belonging to the input role
 @strawberry.field
 async def usersByRole(
-    info: Info, role: str, inter_communication_secret: str | None = None
+        info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
     """
     This method is used to get the metadata of all users belonging to the
@@ -174,7 +176,7 @@ async def usersByRole(
 
 @strawberry.field
 async def usersByBatch(
-    batch_year: int, ug: bool = True, pg: bool = True
+        batch_year: int, ug: bool = True, pg: bool = True
 ) -> List[ProfileType]:
     """
     This method is used to get the profiles
@@ -219,7 +221,8 @@ async def usersByBatch(
             ]
         )
 
-    filterstr = f"(&(|{''.join(f'(ou:dn:={ou})' for ou in full_ous)})(uid=*))"
+    ou_clause = "".join(f"(ou:dn:={escape_filter_chars(ou)})" for ou in full_ous)
+    filterstr = f"(&(|{ou_clause})(uid=*))"
 
     result = await ldap_search(filterstr)
 
@@ -241,7 +244,7 @@ async def usersByBatch(
 # get all users in the given list of uids
 @strawberry.field
 async def usersByList(
-    info: Info, userInputs: List[UserInput]
+        info: Info, userInputs: List[UserInput]
 ) -> List[Optional[ProfileType]]:
     """
     This method is used to get the profiles of all
@@ -256,11 +259,13 @@ async def usersByList(
         (List[Optional[otypes.ProfileType]]): Contains profiles of the users.
     """
 
+    if not userInputs:
+        return []
+
     profiles = []
 
-    filterstr = (
-        f"(|{''.join(f'(uid={userInput.uid})' for userInput in userInputs)})"
-    )
+    uid_clause = "".join(f"(uid={escape_filter_chars(inp.uid)})" for inp in userInputs)
+    filterstr = f"(|{uid_clause})"
     results: List = await ldap_search(filterstr)
 
     # Make a list of successful profiles

@@ -5,10 +5,12 @@ use the following command from outside the scripts directory:
 python3 -m scripts.member_no_img
 """
 
+import asyncio
 import csv
 from datetime import datetime
 from os import getenv, makedirs
 
+from ldap.filter import escape_filter_chars
 from pymongo import MongoClient
 
 from utils import ldap_search
@@ -65,10 +67,10 @@ with open("reports/members_without_images.csv", "w", newline="") as csvfile:
 
     # Write the data
     for users in userlist:
-        result = ldap_search(f"(uid={users})")
         try:
+            result = asyncio.run(ldap_search(f"(uid={escape_filter_chars(users)})"))
             dn, details = result[-1]
             email = details["mail"][0].decode()
             csvwriter.writerow([email])
         except:
-            csvwriter.writerow([f"Could not find email for {users} in LDAP"])
+            csvwriter.writerow([f"LDAP Search failed for uid: {users}"])
