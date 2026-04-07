@@ -7,10 +7,9 @@ from typing import List, Optional
 
 import strawberry
 from fastapi.encoders import jsonable_encoder
+from ldap.filter import escape_filter_chars
 
 from db import db
-
-from ldap.filter import escape_filter_chars
 
 # import all models and types
 from models import User
@@ -22,7 +21,7 @@ inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
 @strawberry.field
 async def userProfile(
-        userInput: Optional[UserInput], info: Info
+    userInput: Optional[UserInput], info: Info
 ) -> ProfileType | None:
     """
     User Information from LDAP
@@ -76,7 +75,7 @@ async def userProfile(
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
 async def userMeta(
-        userInput: Optional[UserInput], info: Info
+    userInput: Optional[UserInput], info: Info
 ) -> UserMetaType | None:
     """
     User information from database
@@ -127,8 +126,8 @@ async def userMeta(
     found_user.uid = target
 
     if not user or (
-            user["role"] not in ["cc", "slo", "slc", "club"]
-            and user["uid"] != target
+        user["role"] not in ["cc", "slo", "slc", "club"]
+        and user["uid"] != target
     ):
         # if user is not authorized to see phone number, hide the phone number
         found_user.phone = None
@@ -139,7 +138,7 @@ async def userMeta(
 # get all users belonging to the input role
 @strawberry.field
 async def usersByRole(
-        info: Info, role: str, inter_communication_secret: str | None = None
+    info: Info, role: str, inter_communication_secret: str | None = None
 ) -> List[UserMetaType]:
     """
     This method is used to get the metadata of all users belonging to the
@@ -176,7 +175,7 @@ async def usersByRole(
 
 @strawberry.field
 async def usersByBatch(
-        batch_year: int, ug: bool = True, pg: bool = True
+    batch_year: int, ug: bool = True, pg: bool = True
 ) -> List[ProfileType]:
     """
     This method is used to get the profiles
@@ -221,7 +220,9 @@ async def usersByBatch(
             ]
         )
 
-    ou_clause = "".join(f"(ou:dn:={escape_filter_chars(ou)})" for ou in full_ous)
+    ou_clause = "".join(
+        f"(ou:dn:={escape_filter_chars(ou)})" for ou in full_ous
+    )
     filterstr = f"(&(|{ou_clause})(uid=*))"
 
     result = await ldap_search(filterstr)
@@ -244,7 +245,7 @@ async def usersByBatch(
 # get all users in the given list of uids
 @strawberry.field
 async def usersByList(
-        info: Info, userInputs: List[UserInput]
+    info: Info, userInputs: List[UserInput]
 ) -> List[Optional[ProfileType]]:
     """
     This method is used to get the profiles of all
@@ -264,7 +265,9 @@ async def usersByList(
 
     profiles = []
 
-    uid_clause = "".join(f"(uid={escape_filter_chars(inp.uid)})" for inp in userInputs)
+    uid_clause = "".join(
+        f"(uid={escape_filter_chars(inp.uid)})" for inp in userInputs
+    )
     filterstr = f"(|{uid_clause})"
     results: List = await ldap_search(filterstr)
 
