@@ -1,6 +1,10 @@
 import asyncio
+import json
+import logging
 import os
 import re
+import urllib.error
+import urllib.request
 from typing import List
 
 import ldap
@@ -9,13 +13,96 @@ from cachetools import TTLCache
 # import all models and types
 from otypes import ProfileType
 
-# LDAP Host
+log = logging.getLogger("users.utils")
+
+# Debug / Dev Mode
+DEBUG = os.getenv("GLOBAL_DEBUG", "False").lower() in ("true", "1", "t")
+
+# LDAP Host & Credentials
 LDAP_HOST = os.getenv("LDAP_HOST", "ldaps://ldap.iiit.ac.in")
-LDAP = ldap.initialize(LDAP_HOST)
+LDAP_USER_X = os.getenv("LDAP_USER_X", os.getenv("USER_X", ""))
+LDAP_PASSWORD_X = os.getenv("LDAP_PASSWORD_X", os.getenv("PASSWORD_X", ""))
+
+# Only initialize python-ldap client if not in debug mode or if python-ldap is available
+LDAP = None
+if not DEBUG and ldap is not None and hasattr(ldap, "initialize"):
+    LDAP = ldap.initialize(LDAP_HOST)
 
 # cache ldap_search for 15 days
 CACHE_TTL = 15 * 24 * 60 * 60
 LDAP_CACHE = TTLCache(maxsize=512, ttl=CACHE_TTL)
+
+
+def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
+    """
+    Perform an HTTP search against the mock LDAP server with user-x and password-x headers.
+    """
+    host = LDAP_HOST
+    # Normalize ldap:// -> http:// or ldaps:// -> https://
+    if host.startswith("ldap://"):
+        host = "http://" + host[7:]
+    elif host.startswith("ldaps://"):
+        host = "https://" + host[8:]
+    elif not host.startswith(("http://", "https://")):
+    if not host.startswith(("http://", "https://", "ldap://", "ldaps://")):
+        host = f"http://{host}"
+
+    # Remove trailing slash
+    host = host.rstrip("/")
+    if not host.endswith("/search"):
+        url = f"{host}/search"
+    parsed = urllib.parse.urlparse(host)
+    scheme = "https" if parsed.scheme in ("https", "ldaps") else "http"
+    netloc = parsed.netloc
+
+    # If no port is specified in netloc, default to 389 for ldap URLs or when port is omitted
+    if ":" not in netloc:
+        if parsed.scheme in ("ldap", "ldaps") or host.startswith(("ldap://", "ldaps://")):
+            netloc = f"{netloc}:389"
+
+    path = parsed.path.rstrip("/")
+    if not path.endswith("/search"):
+        url = f"{scheme}://{netloc}/search"
+    else:
+        url = host
+        url = f"{scheme}://{netloc}{path}"
+
+    payload = json.dumps({"filter": filterstr}).encode("utf-8")
+    headers = {
+        "Content-Type": "application/json",
+    }
+    if LDAP_USER_X:
+        headers["user-x"] = LDAP_USER_X
+    if LDAP_PASSWORD_X:
+        headers["password-x"] = LDAP_PASSWORD_X
+
+    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        err_msg = exc.read().decode("utf-8", errors="replace")
+        log.error("Mock LDAP HTTP search failed (%d): %s", exc.code, err_msg)
+        raise Exception(f"Mock LDAP search failed: {exc.code} {err_msg}") from exc
+    except Exception as exc:
+        log.error("Mock LDAP HTTP connection error: %s", exc)
+        raise Exception(f"Could not connect to mock LDAP server: {exc}") from exc
+
+    # Convert JSON response to match python-ldap return format:
+    # [(dn: str, {attr: [bytes, ...]})]
+    formatted_results = []
+    for entry in data:
+        dn = entry.get("dn", "")
+        attrs_raw = entry.get("attrs", {})
+        attrs_bytes = {}
+        for k, vals in attrs_raw.items():
+            encoded_vals = [
+                v.encode("utf-8") if isinstance(v, str) else v for v in vals
+            ]
+            attrs_bytes[k] = encoded_vals
+        formatted_results.append((dn, attrs_bytes))
+
+    return formatted_results
 
 
 async def ldap_search(filterstr: str) -> List[tuple]:
@@ -35,6 +122,19 @@ async def ldap_search(filterstr: str) -> List[tuple]:
 
     global LDAP
     loop = asyncio.get_event_loop()
+
+    # In dev/debug mode, use HTTP mock LDAP server with headers & IP auth
+    if DEBUG:
+        result = await loop.run_in_executor(
+            None, _http_mock_ldap_search_sync, filterstr
+        )
+        LDAP_CACHE[filterstr] = result
+        return result
+
+    # Production mode: use standard python-ldap
+    if LDAP is None and ldap is not None:
+        LDAP = ldap.initialize(LDAP_HOST)
+
     try:
         result = await loop.run_in_executor(
             None,
