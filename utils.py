@@ -4,10 +4,15 @@ import logging
 import os
 import re
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import List
 
-import ldap
+try:
+    import ldap
+except ImportError:
+    ldap = None
+
 from cachetools import TTLCache
 
 # import all models and types
@@ -38,19 +43,9 @@ def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
     Perform an HTTP search against the mock LDAP server with user-x and password-x headers.
     """
     host = LDAP_HOST
-    # Normalize ldap:// -> http:// or ldaps:// -> https://
-    if host.startswith("ldap://"):
-        host = "http://" + host[7:]
-    elif host.startswith("ldaps://"):
-        host = "https://" + host[8:]
-    elif not host.startswith(("http://", "https://")):
     if not host.startswith(("http://", "https://", "ldap://", "ldaps://")):
         host = f"http://{host}"
 
-    # Remove trailing slash
-    host = host.rstrip("/")
-    if not host.endswith("/search"):
-        url = f"{host}/search"
     parsed = urllib.parse.urlparse(host)
     scheme = "https" if parsed.scheme in ("https", "ldaps") else "http"
     netloc = parsed.netloc
@@ -64,7 +59,6 @@ def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
     if not path.endswith("/search"):
         url = f"{scheme}://{netloc}/search"
     else:
-        url = host
         url = f"{scheme}://{netloc}{path}"
 
     payload = json.dumps({"filter": filterstr}).encode("utf-8")
