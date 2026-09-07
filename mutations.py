@@ -99,7 +99,7 @@ async def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
 
     # check if user has access
     if not (
-        user.get("role", None) in ["cc", "club"]
+        user.get("role", None) in ["cc", "club", "slo"]
         or user.get("uid", None) == userData["uid"]
     ):
         raise Exception("You are not allowed to perform this action!")
@@ -138,7 +138,7 @@ async def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
 
     # check if user has access
     if (
-        user.get("role", None) not in ["cc"]
+        user.get("role", None) not in ["cc", "slo"]
         and user.get("uid", None) != userData["uid"]
     ):
         raise Exception("You are not allowed to perform this action!")
