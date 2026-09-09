@@ -24,6 +24,10 @@ source code for this can be found in the
     Repository](https://github.com/Clubs-Council-IIITH/setup).
 2.  Follow the setup instructions provided there.
 
+**For local development**
+1. Add the IP address of mock LDAP to .env.example in LDAP_HOST (ldap://10.10.15.5)
+2. Add your assigned LDAP_USER_X and LDAP_PASSWORD_X to the .env.example
+
 ## Developer Info
 
 -   **GraphQL Endpoint**: `http://users/graphql` (Accessible via the
