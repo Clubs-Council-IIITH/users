@@ -2,7 +2,7 @@
 Data Models for the Users Microservice
 """
 
-from typing import Any, Optional
+from typing import Any
 
 import phonenumbers
 from bson import ObjectId
@@ -55,9 +55,9 @@ class User(BaseModel):
     """
 
     uid: str
-    img: Optional[str] = None
-    role: Optional[str] = "public"
-    phone: Optional[str] = None
+    img: str | None = None
+    role: str | None = "public"
+    phone: str | None = None
 
     # field validators
     @field_validator("uid", mode="before")
@@ -114,7 +114,5 @@ class User(BaseModel):
             return phonenumbers.format_number(
                 phone, phonenumbers.PhoneNumberFormat.INTERNATIONAL
             )
-        except phonenumbers.phonenumberutil.NumberParseException:
+        except phonenumbers.phonenumberutil.NumberParseException, ValueError:
             raise ValueError("Invalid phone number!")
-        except Exception as e:
-            raise ValueError(str(e))

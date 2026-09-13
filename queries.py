@@ -1,9 +1,10 @@
+from graphql import GraphQLError
+
 """
 Query Resolvers
 """
 
 import os
-from typing import List, Optional
 
 import strawberry
 from fastapi.encoders import jsonable_encoder
@@ -21,7 +22,7 @@ inter_communication_secret_global = os.getenv("INTER_COMMUNICATION_SECRET")
 
 @strawberry.field
 async def userProfile(
-    userInput: Optional[UserInput], info: Info
+    userInput: UserInput | None, info: Info
 ) -> ProfileType | None:
     """
     User Information from LDAP
@@ -58,7 +59,7 @@ async def userProfile(
     # error out if querying uid is null
     if target is None:
         return None
-        # raise Exception(
+        # raise GraphQLError(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     # query LDAP for user profile
@@ -67,7 +68,7 @@ async def userProfile(
     # error out if LDAP query fails
     if not result:
         print(f"Could not find user profile for {target} in LDAP!")
-        raise Exception("Could not find user profile in LDAP!")
+        raise GraphQLError("Could not find user profile in LDAP!")
 
     return get_profile(result[-1])  # single profile
 
@@ -75,7 +76,7 @@ async def userProfile(
 # get user metadata (uid, role, etc.) from local database
 @strawberry.field
 async def userMeta(
-    userInput: Optional[UserInput], info: Info
+    userInput: UserInput | None, info: Info
 ) -> UserMetaType | None:
     """
     User information from database
@@ -108,7 +109,7 @@ async def userMeta(
     # error out if querying uid is null
     if target is None:
         return None
-        # raise Exception(
+        # raise GraphQLError(
         #     "Can not query a null uid! Log in or provide an uid as input.")
 
     target = target.lower()
@@ -139,7 +140,7 @@ async def userMeta(
 @strawberry.field
 async def usersByRole(
     info: Info, role: str, inter_communication_secret: str | None = None
-) -> List[UserMetaType]:
+) -> list[UserMetaType]:
     """
     This method is used to get the metadata of all users belonging to the
     given input role.
@@ -158,14 +159,11 @@ async def usersByRole(
     """
     user = info.context.user
 
-    if user:
-        if user["role"] in [
-            "cc",
-        ]:
-            inter_communication_secret = inter_communication_secret_global
+    if user and user["role"] in ["cc"]:
+        inter_communication_secret = inter_communication_secret_global
 
     if inter_communication_secret != inter_communication_secret_global:
-        raise Exception("Authentication Error! Invalid secret!")
+        raise GraphQLError("Authentication Error! Invalid secret!")
 
     users = await db.users.find({"role": role}).to_list(length=None)
     return [
@@ -176,7 +174,7 @@ async def usersByRole(
 @strawberry.field
 async def usersByBatch(
     batch_year: int, ug: bool = True, pg: bool = True
-) -> List[ProfileType]:
+) -> list[ProfileType]:
     """
     This method is used to get the profiles
     of all users belonging to the
@@ -232,7 +230,7 @@ async def usersByBatch(
         print(
             f"Could not find user profiles for batch 2k{batch_year} in LDAP!"
         )
-        raise Exception(
+        raise GraphQLError(
             f"Could not find user profiles for batch 2k{batch_year} in LDAP!"
         )
 
@@ -245,8 +243,8 @@ async def usersByBatch(
 # get all users in the given list of uids
 @strawberry.field
 async def usersByList(
-    info: Info, userInputs: List[UserInput]
-) -> List[Optional[ProfileType]]:
+    info: Info, userInputs: list[UserInput]
+) -> list[ProfileType | None]:
     """
     This method is used to get the profiles of all
     users belonging to the input array of uids.
@@ -269,7 +267,7 @@ async def usersByList(
         f"(uid={escape_filter_chars(inp.uid)})" for inp in userInputs
     )
     filterstr = f"(|{uid_clause})"
-    results: List = await ldap_search(filterstr)
+    results: list = await ldap_search(filterstr)
 
     # Make a list of successful profiles
     resultUids = [result[1]["uid"][0].decode() for result in results]

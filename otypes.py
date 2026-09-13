@@ -4,7 +4,6 @@ Types and Inputs
 
 import json
 from functools import cached_property
-from typing import Dict, Optional, Union
 
 import strawberry
 from strawberry.fastapi import BaseContext
@@ -22,7 +21,7 @@ class Context(BaseContext):
     """
 
     @cached_property
-    def user(self) -> Union[Dict, None]:
+    def user(self) -> dict | None:
         if not self.request:
             return None
 
@@ -30,7 +29,7 @@ class Context(BaseContext):
         return user
 
     @cached_property
-    def cookies(self) -> Union[Dict, None]:
+    def cookies(self) -> dict | None:
         if not self.request:
             return None
 
@@ -121,7 +120,7 @@ class RoleInput:
 
     uid: str
     role: str
-    inter_communication_secret: Optional[str] = None
+    inter_communication_secret: str | None = None
 
 
 # user phone input type
@@ -152,5 +151,5 @@ class UserDataInput:
     """
 
     uid: str
-    img: Optional[str] = None
-    phone: Optional[str]
+    img: str | None = None
+    phone: str | None

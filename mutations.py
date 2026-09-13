@@ -1,3 +1,6 @@
+from graphql import GraphQLError
+from pydantic import ValidationError
+
 """
 Mutations for Users Microservice
 """
@@ -37,20 +40,22 @@ async def updateRole(roleInput: RoleInput, info: Info) -> bool:
 
     user = info.context.user
     if not user:
-        raise Exception("Not logged in!")
+        raise GraphQLError("Not logged in!")
 
     roleInputData = jsonable_encoder(roleInput)
 
     # check if user is admin
     if user.get("role", None) not in ["cc"]:
-        raise Exception("Authentication Error! Only admins can assign roles!")
+        raise GraphQLError(
+            "Authentication Error! Only admins can assign roles!"
+        )
 
     # check if the secret is correct
     if (
         roleInputData.get("inter_communication_secret", None)
         != inter_communication_secret
     ):
-        raise Exception("Authentication Error! Invalid secret!")
+        raise GraphQLError("Authentication Error! Invalid secret!")
 
     await db.users.update_one(
         {"uid": roleInputData["uid"]},
@@ -87,22 +92,22 @@ async def updateUserPhone(userDataInput: PhoneInput, info: Info) -> bool:
 
     user = info.context.user
     if not user:
-        raise Exception("Not logged in!")
+        raise GraphQLError("Not logged in!")
 
     userData = jsonable_encoder(userDataInput)
 
     # Validate the data by putting in the model
     try:
         User(**userData)
-    except Exception:
-        raise Exception("Invalid phone number!")
+    except ValidationError:
+        raise GraphQLError("Invalid phone number!")
 
     # check if user has access
     if not (
         user.get("role", None) in ["cc", "club", "slo"]
         or user.get("uid", None) == userData["uid"]
     ):
-        raise Exception("You are not allowed to perform this action!")
+        raise GraphQLError("You are not allowed to perform this action!")
 
     await db.users.update_one(
         {"uid": userData["uid"]},
@@ -132,7 +137,7 @@ async def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
 
     user = info.context.user
     if not user:
-        raise Exception("Not logged in!")
+        raise GraphQLError("Not logged in!")
 
     userData = jsonable_encoder(userDataInput)
 
@@ -141,7 +146,7 @@ async def updateUserData(userDataInput: UserDataInput, info: Info) -> bool:
         user.get("role", None) not in ["cc", "slo"]
         and user.get("uid", None) != userData["uid"]
     ):
-        raise Exception("You are not allowed to perform this action!")
+        raise GraphQLError("You are not allowed to perform this action!")
 
     # Validate the data by putting in the model
     User(**userData)

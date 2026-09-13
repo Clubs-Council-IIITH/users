@@ -6,7 +6,6 @@ import re
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import List
 
 try:
     import ldap
@@ -28,7 +27,8 @@ LDAP_HOST = os.getenv("LDAP_HOST", "ldaps://ldap.iiit.ac.in")
 LDAP_USER_X = os.getenv("LDAP_USER_X", os.getenv("USER_X", ""))
 LDAP_PASSWORD_X = os.getenv("LDAP_PASSWORD_X", os.getenv("PASSWORD_X", ""))
 
-# Only initialize python-ldap client if not in debug mode or if python-ldap is available
+# Only initialize python-ldap client if not in debug mode or if
+# python-ldap is available
 LDAP = None
 if not DEBUG and ldap is not None and hasattr(ldap, "initialize"):
     LDAP = ldap.initialize(LDAP_HOST)
@@ -38,9 +38,10 @@ CACHE_TTL = 15 * 24 * 60 * 60
 LDAP_CACHE = TTLCache(maxsize=512, ttl=CACHE_TTL)
 
 
-def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
+def _http_mock_ldap_search_sync(filterstr: str) -> list[tuple]:
     """
-    Perform an HTTP search against the mock LDAP server with user-x and password-x headers.
+    Perform an HTTP search against the mock LDAP server with user-x and
+    password-x headers.
     """
     host = LDAP_HOST
     if not host.startswith(("http://", "https://", "ldap://", "ldaps://")):
@@ -50,10 +51,13 @@ def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
     scheme = "https" if parsed.scheme in ("https", "ldaps") else "http"
     netloc = parsed.netloc
 
-    # If no port is specified in netloc, default to 389 for ldap URLs or when port is omitted
-    if ":" not in netloc:
-        if parsed.scheme in ("ldap", "ldaps") or host.startswith(("ldap://", "ldaps://")):
-            netloc = f"{netloc}:389"
+    # If no port is specified in netloc, default to 389 for ldap URLs or
+    # when port is omitted
+    if ":" not in netloc and (
+        parsed.scheme in ("ldap", "ldaps")
+        or host.startswith(("ldap://", "ldaps://"))
+    ):
+        netloc = f"{netloc}:389"
 
     path = parsed.path.rstrip("/")
     if not path.endswith("/search"):
@@ -70,17 +74,23 @@ def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
     if LDAP_PASSWORD_X:
         headers["password-x"] = LDAP_PASSWORD_X
 
-    req = urllib.request.Request(url, data=payload, headers=headers, method="POST")
+    req = urllib.request.Request(
+        url, data=payload, headers=headers, method="POST"
+    )
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         err_msg = exc.read().decode("utf-8", errors="replace")
         log.error("Mock LDAP HTTP search failed (%d): %s", exc.code, err_msg)
-        raise Exception(f"Mock LDAP search failed: {exc.code} {err_msg}") from exc
+        raise RuntimeError(
+            f"Mock LDAP search failed: {exc.code} {err_msg}"
+        ) from exc
     except Exception as exc:
         log.error("Mock LDAP HTTP connection error: %s", exc)
-        raise Exception(f"Could not connect to mock LDAP server: {exc}") from exc
+        raise RuntimeError(
+            f"Could not connect to mock LDAP server: {exc}"
+        ) from exc
 
     # Convert JSON response to match python-ldap return format:
     # [(dn: str, {attr: [bytes, ...]})]
@@ -99,7 +109,7 @@ def _http_mock_ldap_search_sync(filterstr: str) -> List[tuple]:
     return formatted_results
 
 
-async def ldap_search(filterstr: str) -> List[tuple]:
+async def ldap_search(filterstr: str) -> list[tuple]:
     """
     Fetchs details from LDAP server of user matching the filters.
 
@@ -154,7 +164,7 @@ async def ldap_search(filterstr: str) -> List[tuple]:
     return result
 
 
-def get_profile(ldap_result: List) -> ProfileType:
+def get_profile(ldap_result: list) -> ProfileType:
     """
     Fetches user's ProfileType from the result of the request to LDAP server.
 

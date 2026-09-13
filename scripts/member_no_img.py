@@ -1,5 +1,7 @@
+import urllib.error
+
 """
-To run this script inside the container, 
+To run this script inside the container,
 use the following command from outside the scripts directory:
 
 python3 -m scripts.member_no_img
@@ -8,6 +10,9 @@ python3 -m scripts.member_no_img
 import asyncio
 import csv
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+IST = ZoneInfo("Asia/Kolkata")
 from os import getenv, makedirs
 
 from ldap.filter import escape_filter_chars
@@ -26,7 +31,7 @@ db = client[MONGO_DATABASE]
 
 makedirs("reports", exist_ok=True)
 
-current_year = datetime.now().year
+current_year = datetime.now(IST).year
 # Fetch active clubs
 results = db.clubs.find({"state": "active"})
 clubs = [result for result in results]
@@ -68,9 +73,10 @@ with open("reports/members_without_images.csv", "w", newline="") as csvfile:
     # Write the data
     for users in userlist:
         try:
-            result = asyncio.run(ldap_search(f"(uid={escape_filter_chars(users)})"))
+            filter_str = f"(uid={escape_filter_chars(users)})"
+            result = asyncio.run(ldap_search(filter_str))
             dn, details = result[-1]
             email = details["mail"][0].decode()
             csvwriter.writerow([email])
-        except:
+        except KeyError, IndexError, RuntimeError, urllib.error.URLError:
             csvwriter.writerow([f"LDAP Search failed for uid: {users}"])
